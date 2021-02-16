@@ -606,10 +606,20 @@ void uci()
 	
 	std::fstream f; // file für log-Datei
 	f.open("log.txt", std::ios::out);
-
+	
 	while (true)
 	{
 		fflush(stdout);
+
+		std::cin >> command;
+		f << command << std::endl; // command in ein logfile ausgeben
+
+		if (!strcmp(command, "isready"))
+		{
+			std::cout << "readyok" << std::endl;
+			continue;
+		}
+
 		if (side == computer_side)
 		{
 			think();
@@ -639,9 +649,7 @@ void uci()
 			continue;
 		}
 		
-		std::cin >> command;
 		
-		f << command << std::endl; // command in ein logfile ausgeben
 		
 		if (!strcmp(command, "debug"))
 		{
@@ -650,11 +658,7 @@ void uci()
 			continue;
 		}
 
-		if (!strcmp(command, "isready"))
-		{
-			std::cout << "readyok" << std::endl;
-			continue;
-		}
+		
 
 		if (!strcmp(command, "setoption"))
 		{
@@ -683,6 +687,19 @@ void uci()
 				
 				if (!strcmp(parameter, "moves"))
 				{
+					if (!fgets(line, 256, stdin))
+						return;
+					f << "-" << line << "-" << std::endl;
+					if (line[0] == '\n')
+						continue;
+					if (line[5] == '\n')
+					{						
+						f << "Seitenwechsel" << std::endl;
+						computer_side = Black;
+						side = Black;
+						xside = White;
+					}
+					
 				  first_move[0] = 0;
 				  Gen(side, xside);
 
@@ -718,9 +735,7 @@ void uci()
 		if (!strcmp(command, "quit"))
 			return;
 		if (!strcmp(command, "stop"))
-			return;
-
-        
+			return;        
 	}
 	f.close(); // file fuer log-Datei schliessen
 }
