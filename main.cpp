@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,48 +55,48 @@ void SetBits();
 extern int move_start, move_dest;
 
 const std::string currentDateTime() {
-  time_t     now = time(0);
-  struct tm  tstruct;
-  char       buf[80];
-  tstruct = *localtime(&now);
-  strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
-  return buf;
+    time_t     now = time(0);
+    struct tm  tstruct;
+    char       buf[80];
+    tstruct = *localtime(&now);
+    strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
+    return buf;
 }
 
 int main()
 {
-  SetBits();
-  printf("Pretty Hardy Chess Engine\n");
-  printf("Version 0.1\n");
+    SetBits();
+    printf("Pretty Hardy Chess Engine\n");
+    printf("Version 0.1\n");
 
-  char s[256];
-  char sFen[256];
-  char sText[256];
+    char s[256];
+    char sFen[256];
+    char sText[256];
 
-  int m;
-  int turns = 0;
-  int t;
-  int lookup;
+    int m;
+    int turns = 0;
+    int t;
+    int lookup;
 
-  double nps;
+    double nps;
 
-  fixed_time = 0;
+    fixed_time = 0;
 
-  SetUp(); // setzt z.B. maximale Halbzugtiefe
+    SetUp(); // setzt z.B. maximale Halbzugtiefe
 
-  while (true)
-  {
-    if (scanf("%s", s) == EOF)
-      return 0;
-
-    if (!strcmp(s, "uci"))
+    while (true)
     {
-      UCI();
-      break;
+        if (scanf("%s", s) == EOF)
+            return 0;
+
+        if (!strcmp(s, "uci"))
+        {
+            UCI();
+            break;
+        }
     }
-  }
-  Free();
-  return 0;
+    Free();
+    return 0;
 }
 
 /*
@@ -105,120 +105,120 @@ The console object is only used to display in colour.
 */
 void DisplayBoard()
 {
-  HANDLE hConsole;
-  hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-  int text = 15;
+    HANDLE hConsole;
+    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    int text = 15;
 
-  int i;
-  int x = 0;
-  int c;
+    int i;
+    int x = 0;
+    int c;
 
-  if (flip == 0)
-    printf("\n8 ");
-  else
-    printf("\n1 ");
-
-  for (int j = 0; j < 64; ++j)
-  {
     if (flip == 0)
-      i = Flip[j];
+        printf("\n8 ");
     else
-      i = 63 - Flip[j];
-    c = EMPTY;
-    if (bit_units[White] & mask[i]) c = White;
-    if (bit_units[Black] & mask[i]) c = Black;
-    switch (c)
+        printf("\n1 ");
+
+    for (int j = 0; j < 64; ++j)
     {
-      //https://docs.microsoft.com/de-de/windows/console/console-screen-buffers#character-attributes
-    case EMPTY:
-      if (board_color[i] == 0)
-        text = 127;
-      else
-        text = 34;
-      SetConsoleTextAttribute(hConsole, text);
+        if (flip == 0)
+            i = Flip[j];
+        else
+            i = 63 - Flip[j];
+        c = EMPTY;
+        if (bit_units[White] & mask[i]) c = White;
+        if (bit_units[Black] & mask[i]) c = Black;
+        switch (c)
+        {
+            //https://docs.microsoft.com/de-de/windows/console/console-screen-buffers#character-attributes
+        case EMPTY:
+            if (board_color[i] == 0)
+                text = 127;
+            else
+                text = 34;
+            SetConsoleTextAttribute(hConsole, text);
 
-      printf("  ");
-      SetConsoleTextAttribute(hConsole, 15);
-      break;
-    case White:
-      if (board_color[i] == White)
-        text = 126;
-      else
-        text = 46;
-      SetConsoleTextAttribute(hConsole, text);
-      printf(" %c", piece_char[board[i]]);
-      SetConsoleTextAttribute(hConsole, 15);
-      break;
+            printf("  ");
+            SetConsoleTextAttribute(hConsole, 15);
+            break;
+        case White:
+            if (board_color[i] == White)
+                text = 126;
+            else
+                text = 46;
+            SetConsoleTextAttribute(hConsole, text);
+            printf(" %c", piece_char[board[i]]);
+            SetConsoleTextAttribute(hConsole, 15);
+            break;
 
-    case Black:
-      if (board_color[i] == White)
-        text = 112;
-      else
-        text = 32;
-      SetConsoleTextAttribute(hConsole, text);
-      printf(" %c", piece_char[board[i]] + ('a' - 'A'));
-      SetConsoleTextAttribute(hConsole, 15);
-      break;
+        case Black:
+            if (board_color[i] == White)
+                text = 112;
+            else
+                text = 32;
+            SetConsoleTextAttribute(hConsole, text);
+            printf(" %c", piece_char[board[i]] + ('a' - 'A'));
+            SetConsoleTextAttribute(hConsole, 15);
+            break;
 
-    default:
-      printf(" %d.", c);
-      break;
+        default:
+            printf(" %d.", c);
+            break;
 
+        }
+        if ((bit_all & mask[i]) && board[i] == 6)
+            if (x == 0)
+                printf(" %d", c);
+            else
+                printf("%d ", c);
+        if (board[i] < 0 || board[i]>6)
+            if (x == 0)
+                printf(" %d.", board[i]);
+            else
+                printf("%d ", board[i]);
+        if (flip == 0)
+        {
+            if ((j + 1) % 8 == 0 && j != 63)
+                printf("\n%d ", row[i]);
+        }
+        else
+        {
+            if ((j + 1) % 8 == 0 && row[i] != 7)
+                printf("\n%d ", row[j] + 2);
+        }
     }
-    if ((bit_all & mask[i]) && board[i] == 6)
-      if (x == 0)
-        printf(" %d", c);
-      else
-        printf("%d ", c);
-    if (board[i] < 0 || board[i]>6)
-      if (x == 0)
-        printf(" %d.", board[i]);
-      else
-        printf("%d ", board[i]);
     if (flip == 0)
-    {
-      if ((j + 1) % 8 == 0 && j != 63)
-        printf("\n%d ", row[i]);
-    }
+        printf("\n\n   a b c d e f g h\n\n");
     else
-    {
-      if ((j + 1) % 8 == 0 && row[i] != 7)
-        printf("\n%d ", row[j] + 2);
-    }
-  }
-  if (flip == 0)
-    printf("\n\n   a b c d e f g h\n\n");
-  else
-    printf("\n\n   h g f e d c b a\n\n");
+        printf("\n\n   h g f e d c b a\n\n");
 }
 
 int ParseMove(char* s)
 {
-  int start, dest, i;
+    int start, dest, i;
 
-  if (s[0] < 'a' || s[0] > 'h' ||
-    s[1] < '0' || s[1] > '9' ||
-    s[2] < 'a' || s[2] > 'h' ||
-    s[3] < '0' || s[3] > '9')
+    if (s[0] < 'a' || s[0] > 'h' ||
+        s[1] < '0' || s[1] > '9' ||
+        s[2] < 'a' || s[2] > 'h' ||
+        s[3] < '0' || s[3] > '9')
+        return -1;
+
+    start = s[0] - 'a';
+    start += ((s[1] - '0') - 1) * 8;
+    dest = s[2] - 'a';
+    dest += ((s[3] - '0') - 1) * 8;
+
+    for (i = 0; i < first_move[1]; ++i)
+        if (move_list[i].start == start && move_list[i].dest == dest)
+        {
+            if (s[4] == 'n' || s[4] == 'N')
+                move_list[i].promote = 1;
+            if (s[4] == 'b' || s[4] == 'B')
+                move_list[i].promote = 2;
+            else if (s[4] == 'r' || s[4] == 'R')
+                move_list[i].promote = 3;
+            return i;
+        }
     return -1;
-
-  start = s[0] - 'a';
-  start += ((s[1] - '0') - 1) * 8;
-  dest = s[2] - 'a';
-  dest += ((s[3] - '0') - 1) * 8;
-
-  for (i = 0; i < first_move[1]; ++i)
-    if (move_list[i].start == start && move_list[i].dest == dest)
-    {
-      if (s[4] == 'n' || s[4] == 'N')
-        move_list[i].promote = 1;
-      if (s[4] == 'b' || s[4] == 'B')
-        move_list[i].promote = 2;
-      else if (s[4] == 'r' || s[4] == 'R')
-        move_list[i].promote = 3;
-      return i;
-    }
-  return -1;
 }
 
 /*
@@ -226,443 +226,479 @@ int ParseMove(char* s)
 */
 void UCI()
 {
-  char line[2048], command[256], parameter[256];
-  int m;
-  int post = 0;
-  int analyze = 0;
-  int lookup;
-  bool gameIsRunning = true;
+    char line[2048], command[256], parameter[256];
+    int m;
+    int post = 0;
+    int analyze = 0;
+    int lookup;
+    bool gameIsRunning = true;
 
-  signal(SIGINT, SIG_IGN);
-  printf("\n");
-  NewGame();
-  fixed_time = 0;
+    signal(SIGINT, SIG_IGN);
+    printf("\n");
+    NewGame();
+    fixed_time = 0;
 
-  std::cout << "id name PrettyHardyChessmaster Feb 2021\n"
-    << "id author E.Henkes, P.Puntschart (inspired by code of Bill Jordan)\n"
-    << "option name UCI_Chess960 0\n"
-    << "option name Threads 1\n"
-    << "option name Hash type spin default 128 min 16 max 2048\n"
-    << "option name Syzygy50MoveRule 1\n"
-    << "option name Ponder 0\n"
-    << "uciok" << std::endl;
+    std::cout << "id name PrettyHardyChessmaster Feb 2021\n"
+        << "id author E.Henkes, P.Puntschart (inspired by code of Bill Jordan)\n"
+        << "option name UCI_Chess960 0\n"
+        << "option name Threads 1\n"
+        << "option name Hash type spin default 128 min 16 max 2048\n"
+        << "option name Syzygy50MoveRule 1\n"
+        << "option name Ponder 0\n"
+        << "uciok" << std::endl;
 
-  std::fstream f; // file für log-Datei
-  f.open("log.txt", std::ios::out);
+    std::fstream f; // file fuer log-Datei
+    f.open("log.txt", std::ios::out);
 
-  while (gameIsRunning)
-  {
-    fflush(stdout);
-
-    std::cin >> command;
-    f << currentDateTime() << ": " << command << std::endl; // command in ein logfile ausgeben
-
-    if (!strcmp(command, "isready"))
+    while (gameIsRunning)
     {
-      std::cout << "readyok" << std::endl;
-      continue;
-    }
+        fflush(stdout);
 
-    if (!strcmp(command, "setoption"))
-    {
-      std::cin >> parameter;
-      f << "\t" << parameter << std::endl;
-      continue;
-    }
+        std::cin >> command;
+        f << currentDateTime() << ": " << command << std::endl; // command in ein logfile ausgeben
 
-    if (!strcmp(command, "ucinewgame"))
-    {
-      NewGame();
-      computer_side = EMPTY;
-      continue;
-    }
-
-    if (!strcmp(command, "position"))
-    {
-      std::cin >> parameter;
-      f << "\t" << parameter << std::endl;
-
-      if (!strcmp(parameter, "startpos"))
-      {
-        std::cin >> parameter;
-        f << "\t" << parameter << std::endl;
-
-        if (strcmp(parameter, "moves")) {
-          computer_side = White;
-        }
-        else {
-          if (!fgets(line, 2048, stdin)) {
-            gameIsRunning = false;
-            break;
-          }
-
-          if (line[0] == '\n')
+        if (!strcmp(command, "isready"))
+        {
+            std::cout << "readyok" << std::endl;
             continue;
-
-          int last_space = 0;
-
-          for (int i = 0; i < 2048; i++) {
-            if (line[i] == '\n') {
-              break;
-            }
-            if (line[i] == ' ') {
-              last_space = i;
-            }
-          }
-
-          ply = 0;
-          first_move[0] = 0;
-          Gen(side, xside);
-          m = ParseMove(&line[last_space + 1]);
-          if (m == -1 || !MakeMove(move_list[m].start, move_list[m].dest))
-          {
-            printf("The engine did not understand the given moves: \n");
-            printf(line);
-            printf("\n");
-            MoveString(move_list[m].start, move_list[m].dest, move_list[m].promote);
-          }
-          if (game_list[hply - 1].promote > 0 && (row[move_list[m].dest] == 0 || row[move_list[m].dest] == 7))
-          {
-            RemovePiece(xside, Q, move_list[m].dest);
-            if (line[4] == 'n' || line[4] == 'N')
-              AddPiece(xside, N, move_list[m].dest);
-            else if (line[4] == 'b' || line[4] == 'B')
-              AddPiece(xside, B, move_list[m].dest);
-            else if (line[4] == 'r' || line[4] == 'R')
-              AddPiece(xside, R, move_list[m].dest);
-            else AddPiece(xside, Q, move_list[m].dest);
-          }
         }
-      }
-      continue;
+
+        if (!strcmp(command, "setoption"))
+        {
+            std::cin >> parameter;
+            f << "\t" << parameter << std::endl;
+            continue;
+        }
+
+        if (!strcmp(command, "ucinewgame"))
+        {
+            NewGame();
+            computer_side = EMPTY;
+            continue;
+        }
+        
+        if (!strcmp(command, "position"))
+        {
+            std::cin >> parameter;
+            f << "\t" << parameter << std::endl;
+
+            if (!strcmp(parameter, "startpos"))
+            {
+                std::cin >> parameter;
+                /*
+                if (!strcmp(parameter,"go"))
+                {
+                    strcpy(command, "go");
+                    continue;
+                }
+                */
+                
+                f << "\t" << parameter << std::endl;
+
+                if (strcmp(parameter, "moves")) {
+                    computer_side = White;
+                }
+                else {
+                    if (!fgets(line, 2048, stdin)) {
+                        gameIsRunning = false;
+                        break;
+                    }
+
+                    if (line[0] == '\n')
+                        continue;
+
+                    int last_space = 0;
+
+                    for (int i = 0; i < 2048; i++) {
+                        if (line[i] == '\n') {
+                            break;
+                        }
+                        if (line[i] == ' ') {
+                            last_space = i;
+                        }
+                    }
+
+                    ply = 0;
+                    first_move[0] = 0;
+                    Gen(side, xside);
+                    m = ParseMove(&line[last_space + 1]);
+                    if (m == -1 || !MakeMove(move_list[m].start, move_list[m].dest))
+                    {
+                        printf("The engine did not understand the given moves: \n");
+                        printf(line);
+                        printf("\n");
+                        MoveString(move_list[m].start, move_list[m].dest, move_list[m].promote);
+                    }
+                    if (game_list[hply - 1].promote > 0 && (row[move_list[m].dest] == 0 || row[move_list[m].dest] == 7))
+                    {
+                        RemovePiece(xside, Q, move_list[m].dest);
+                        if (line[4] == 'n' || line[4] == 'N')
+                            AddPiece(xside, N, move_list[m].dest);
+                        else if (line[4] == 'b' || line[4] == 'B')
+                            AddPiece(xside, B, move_list[m].dest);
+                        else if (line[4] == 'r' || line[4] == 'R')
+                            AddPiece(xside, R, move_list[m].dest);
+                        else AddPiece(xside, Q, move_list[m].dest);
+                    }
+                }
+            }
+            continue;
+        }
+
+        /*
+        if (!strcmp(command, "movetime"))
+        {
+            int value;
+            std::cin >> value;
+            f << "\t" << value << std::endl;
+            max_time = value; // ??? ms
+            fixed_time = 1;
+            max_depth = MAX_PLY;
+            continue;
+        }
+        */
+
+        if (!strcmp(command, "go"))
+        {
+            computer_side = side;
+            
+            /*
+            std::cin >> parameter;
+            f << "\t" << parameter << std::endl;
+            
+            if (!strcmp(parameter, "movetime"))
+            {
+                int value;
+                std::cin >> value;
+                f << "\t" << value << std::endl;
+                max_time = value; // ??? ms
+                fixed_time = 1;
+                max_depth = MAX_PLY;                
+            }
+            */
+            continue;
+        }
+
+        if (side == computer_side)
+        {
+            think();
+            SetMaterial();
+            Gen(side, xside);
+            currentkey = GetKey();
+            currentlock = GetLock();
+            lookup = LookUp(side);
+
+            if (move_start != 0 || move_dest != 0)
+            {
+                hash_start = move_start;
+                hash_dest = move_dest;
+            }
+            else
+                printf(" lookup=0 ");
+
+            move_list[0].start = hash_start;
+            move_list[0].dest = hash_dest;
+            printf("bestmove %s\n", MoveString(hash_start, hash_dest, 0));
+
+            MakeMove(hash_start, hash_dest);
+
+            ply = 0;
+            Gen(side, xside);
+            PrintResult();
+            continue;
+        }
+
+        if (!strcmp(command, "ponderhit")) {
+            // Noch nicht implementiert
+            continue;
+        }
+
+        if (!strcmp(command, "quit") || !strcmp(command, "stop"))
+            gameIsRunning = false;
     }
-
-    if (!strcmp(command, "go"))
-    {
-      computer_side = side;
-      continue;
-    }
-
-    if (side == computer_side)
-    {
-      think();
-      SetMaterial();
-      Gen(side, xside);
-      currentkey = GetKey();
-      currentlock = GetLock();
-      lookup = LookUp(side);
-
-      if (move_start != 0 || move_dest != 0)
-      {
-        hash_start = move_start;
-        hash_dest = move_dest;
-      }
-      else
-        printf(" lookup=0 ");
-
-      move_list[0].start = hash_start;
-      move_list[0].dest = hash_dest;
-      printf("bestmove %s\n", MoveString(hash_start, hash_dest, 0));
-
-      MakeMove(hash_start, hash_dest);
-
-      ply = 0;
-      Gen(side, xside);
-      PrintResult();
-      continue;
-    }
-
-    if (!strcmp(command, "ponderhit")) {
-      // Noch nicht implementiert
-      continue;
-    }
-
-    if (!strcmp(command, "quit") || !strcmp(command, "stop"))
-      gameIsRunning = false;
-  }
-  f.close(); // file fuer log-Datei schliessen
+    f.close(); // file fuer log-Datei schliessen
 }
 
 void PrintResult()
 {
-  int i;
-  int flag = 0;
+    int i;
+    int flag = 0;
 
-  SetMaterial();
-  Gen(side, xside);
-  for (i = 0; i < first_move[1]; ++i)
-    if (MakeMove(move_list[i].start, move_list[i].dest))
-    {
-      TakeBack();
-      flag = 1;
-      break;
-    }
-
-  if (pawn_mat[0] == 0 && pawn_mat[1] == 0 && piece_mat[0] <= 300 && piece_mat[1] <= 300)
-  {
-    printf("1/2-1/2 {Stalemate}\n");
-
-    NewGame();
-    computer_side = EMPTY;
-    return;
-  }
-  if (i == first_move[1] && flag == 0)
-  {
+    SetMaterial();
     Gen(side, xside);
-    DisplayBoard();
-    printf(" end of game ");
+    for (i = 0; i < first_move[1]; ++i)
+        if (MakeMove(move_list[i].start, move_list[i].dest))
+        {
+            TakeBack();
+            flag = 1;
+            break;
+        }
 
-    if (Attack(xside, NextBit(bit_pieces[side][K])))
+    if (pawn_mat[0] == 0 && pawn_mat[1] == 0 && piece_mat[0] <= 300 && piece_mat[1] <= 300)
     {
-      if (side == 0)
-      {
-        printf("0-1 {Black mates}\n");
-      }
-      else
-      {
-        printf("1-0 {White mates}\n");
-      }
+        printf("1/2-1/2 {Stalemate}\n");
+
+        NewGame();
+        computer_side = EMPTY;
+        return;
     }
-    else
+    if (i == first_move[1] && flag == 0)
     {
-      printf("1/2-1/2 {Stalemate}\n");
+        Gen(side, xside);
+        DisplayBoard();
+        printf(" end of game ");
+
+        if (Attack(xside, NextBit(bit_pieces[side][K])))
+        {
+            if (side == 0)
+            {
+                printf("0-1 {Black mates}\n");
+            }
+            else
+            {
+                printf("1-0 {White mates}\n");
+            }
+        }
+        else
+        {
+            printf("1/2-1/2 {Stalemate}\n");
+        }
+        NewGame();
+        computer_side = EMPTY;
     }
-    NewGame();
-    computer_side = EMPTY;
-  }
-  else if (reps() >= 3)
-  {
-    printf("1/2-1/2 {Draw by repetition}\n");
-    NewGame();
-    computer_side = EMPTY;
-  }
-  else if (fifty >= 100)
-  {
-    printf("1/2-1/2 {Draw by fifty move rule}\n");
-    NewGame();
-    computer_side = EMPTY;
-  }
+    else if (reps() >= 3)
+    {
+        printf("1/2-1/2 {Draw by repetition}\n");
+        NewGame();
+        computer_side = EMPTY;
+    }
+    else if (fifty >= 100)
+    {
+        printf("1/2-1/2 {Draw by fifty move rule}\n");
+        NewGame();
+        computer_side = EMPTY;
+    }
 }
 
 int reps()
 {
-  int r = 0;
+    int r = 0;
 
-  for (int i = hply; i >= hply - fifty; i -= 2)
-    if (game_list[i].hash == currentkey && game_list[i].lock == currentlock)
-      r++;
-  return r;
+    for (int i = hply; i >= hply - fifty; i -= 2)
+        if (game_list[i].hash == currentkey && game_list[i].lock == currentlock)
+            r++;
+    return r;
 }
 
 int LoadDiagram(char* file, int num)
 {
-  int x, n = 0;
-  static int count = 1;
-  char ts[200];
+    int x, n = 0;
+    static int count = 1;
+    char ts[200];
 
-  diagram_file = fopen(file, "r");
-  if (!diagram_file)
-  {
-    printf("Diagram missing.\n");
-    return -1;
-  }
-
-  strcpy_s(fen_name, file);
-
-  for (x = 0; x < num; x++)
-  {
-    fgets(ts, 256, diagram_file);
-    if (!ts) break;
-  }
-
-  for (x = 0; x < 64; x++)
-  {
-    board[x] = EMPTY;
-  }
-  memset(bit_pieces, 0, sizeof(bit_pieces));
-  memset(bit_units, 0, sizeof(bit_units));
-  bit_all = 0;
-
-  int c = 0, i = 0, j;
-
-  while (ts)
-  {
-    if (ts[c] >= '0' && ts[c] <= '8')
-      i += ts[c] - 48;
-    if (ts[c] == '\\')
-      continue;
-    j = Flip[i];
-
-    switch (ts[c])
+    diagram_file = fopen(file, "r");
+    if (!diagram_file)
     {
-    case 'K': AddPiece(0, 5, j); i++; break;
-    case 'Q': AddPiece(0, 4, j); i++; break;
-    case 'R': AddPiece(0, 3, j); i++; break;
-    case 'B': AddPiece(0, 2, j); i++; break;
-    case 'N': AddPiece(0, 1, j); i++; break;
-    case 'P': AddPiece(0, 0, j); i++; break;
-    case 'k': AddPiece(1, 5, j); i++; break;
-    case 'q': AddPiece(1, 4, j); i++; break;
-    case 'r': AddPiece(1, 3, j); i++; break;
-    case 'b': AddPiece(1, 2, j); i++; break;
-    case 'n': AddPiece(1, 1, j); i++; break;
-    case 'p': AddPiece(1, 0, j); i++; break;
+        printf("Diagram missing.\n");
+        return -1;
     }
-    c++;
-    if (ts[c] == ' ')
-      break;
-    if (i > 63)
-      break;
-  }
-  if (ts[c] == ' ' && ts[c + 2] == ' ')
-  {
-    if (ts[c + 1] == 'w')
-    {
-      side = 0; xside = 1;
-    }
-    if (ts[c + 1] == 'b')
-    {
-      side = 1; xside = 0;
-    }
-  }
 
-  castle = 0;
-  while (ts[c])
-  {
-    switch (ts[c])
-    {
-    case '-': break;
-    case 'K':if (bit_pieces[0][K] & mask[E1]) castle |= 1; break;
-    case 'Q':if (bit_pieces[0][K] & mask[E1]) castle |= 2; break;
-    case 'k':if (bit_pieces[1][K] & mask[E8]) castle |= 4; break;
-    case 'q':if (bit_pieces[1][K] & mask[E8]) castle |= 8; break;
-    default:break;
-    }
-    c++;
-  }
+    strcpy_s(fen_name, file);
 
-  CloseDiagram();
-  DisplayBoard();
-  NewPosition();
-  Gen(side, xside);
-  printf(" diagram # %d \n", num + count);
-  count++;
-  if (side == 0)
-    printf("White to move\n");
-  else
-    printf("Black to move\n");
-  printf(" %s \n", ts);
-  return 0;
+    for (x = 0; x < num; x++)
+    {
+        fgets(ts, 256, diagram_file);
+        if (!ts) break;
+    }
+
+    for (x = 0; x < 64; x++)
+    {
+        board[x] = EMPTY;
+    }
+    memset(bit_pieces, 0, sizeof(bit_pieces));
+    memset(bit_units, 0, sizeof(bit_units));
+    bit_all = 0;
+
+    int c = 0, i = 0, j;
+
+    while (ts)
+    {
+        if (ts[c] >= '0' && ts[c] <= '8')
+            i += ts[c] - 48;
+        if (ts[c] == '\\')
+            continue;
+        j = Flip[i];
+
+        switch (ts[c])
+        {
+        case 'K': AddPiece(0, 5, j); i++; break;
+        case 'Q': AddPiece(0, 4, j); i++; break;
+        case 'R': AddPiece(0, 3, j); i++; break;
+        case 'B': AddPiece(0, 2, j); i++; break;
+        case 'N': AddPiece(0, 1, j); i++; break;
+        case 'P': AddPiece(0, 0, j); i++; break;
+        case 'k': AddPiece(1, 5, j); i++; break;
+        case 'q': AddPiece(1, 4, j); i++; break;
+        case 'r': AddPiece(1, 3, j); i++; break;
+        case 'b': AddPiece(1, 2, j); i++; break;
+        case 'n': AddPiece(1, 1, j); i++; break;
+        case 'p': AddPiece(1, 0, j); i++; break;
+        }
+        c++;
+        if (ts[c] == ' ')
+            break;
+        if (i > 63)
+            break;
+    }
+    if (ts[c] == ' ' && ts[c + 2] == ' ')
+    {
+        if (ts[c + 1] == 'w')
+        {
+            side = 0; xside = 1;
+        }
+        if (ts[c + 1] == 'b')
+        {
+            side = 1; xside = 0;
+        }
+    }
+
+    castle = 0;
+    while (ts[c])
+    {
+        switch (ts[c])
+        {
+        case '-': break;
+        case 'K':if (bit_pieces[0][K] & mask[E1]) castle |= 1; break;
+        case 'Q':if (bit_pieces[0][K] & mask[E1]) castle |= 2; break;
+        case 'k':if (bit_pieces[1][K] & mask[E8]) castle |= 4; break;
+        case 'q':if (bit_pieces[1][K] & mask[E8]) castle |= 8; break;
+        default:break;
+        }
+        c++;
+    }
+
+    CloseDiagram();
+    DisplayBoard();
+    NewPosition();
+    Gen(side, xside);
+    printf(" diagram # %d \n", num + count);
+    count++;
+    if (side == 0)
+        printf("White to move\n");
+    else
+        printf("Black to move\n");
+    printf(" %s \n", ts);
+    return 0;
 }
 
 void CloseDiagram()
 {
-  if (diagram_file)
-    fclose(diagram_file);
-  diagram_file = NULL;
+    if (diagram_file)
+        fclose(diagram_file);
+    diagram_file = NULL;
 }
 
 void ShowHelp()
 {
-  printf("d - Displays the board.\n");
-  printf("f - Flips the board.\n");
-  printf("go - Starts the engine.\n");
-  printf("help - Displays help on the commands.\n");
-  printf("moves - Displays of list of possible moves.\n");
-  printf("new - Starts a new game .\n");
-  printf("off - Turns the computer player off.\n");
-  printf("on or p - The computer plays a move.\n");
-  printf("sb - Loads a fen diagram.\n");
-  printf("sd - Sets the search depth.\n");
-  printf("st - Sets the time limit per move in seconds.\n");
-  printf("sw - Switches sides.\n");
-  printf("quit - Quits the program.\n");
-  printf("undo - Takes back the last move.\n");
-  printf("xboard - Starts xboard.\n");
+    printf("d - Displays the board.\n");
+    printf("f - Flips the board.\n");
+    printf("go - Starts the engine.\n");
+    printf("help - Displays help on the commands.\n");
+    printf("moves - Displays of list of possible moves.\n");
+    printf("new - Starts a new game .\n");
+    printf("off - Turns the computer player off.\n");
+    printf("on or p - The computer plays a move.\n");
+    printf("sb - Loads a fen diagram.\n");
+    printf("sd - Sets the search depth.\n");
+    printf("st - Sets the time limit per move in seconds.\n");
+    printf("sw - Switches sides.\n");
+    printf("quit - Quits the program.\n");
+    printf("undo - Takes back the last move.\n");
+    printf("xboard - Starts xboard.\n");
 }
 
 void SetUp()
 {
-  RandomizeHash();
-  SetTables();
-  SetMoves();
-  InitBoard();
-  computer_side = EMPTY;
-  player[0] = 0;
-  player[1] = 0;
-  max_time = 1 << 25;
-  max_depth = MAXDEPTH;
+    RandomizeHash();
+    SetTables();
+    SetMoves();
+    InitBoard();
+    computer_side = EMPTY;
+    player[0] = 0;
+    player[1] = 0;
+    max_time = 1 << 25;
+    max_depth = MAXDEPTH;
 }
 
 void NewGame()
 {
-  InitBoard();
-  Gen(side, xside);
+    InitBoard();
+    Gen(side, xside);
 }
 
 void SetMaterial()
 {
-  int c;
-  pawn_mat[0] = 0;
-  pawn_mat[1] = 0;
-  piece_mat[0] = 0;
-  piece_mat[1] = 0;
-  for (int x = 0; x < 64; x++)
-  {
-    if (board[x] < 6)
+    int c;
+    pawn_mat[0] = 0;
+    pawn_mat[1] = 0;
+    piece_mat[0] = 0;
+    piece_mat[1] = 0;
+    for (int x = 0; x < 64; x++)
     {
-      if (bit_units[0] & mask[x])
-        c = 0;
-      else
-        c = 1;
-      if (board[x] == 0)
-        pawn_mat[c] += 100;
-      else
-        piece_mat[c] += piece_value[board[x]];
+        if (board[x] < 6)
+        {
+            if (bit_units[0] & mask[x])
+                c = 0;
+            else
+                c = 1;
+            if (board[x] == 0)
+                pawn_mat[c] += 100;
+            else
+                piece_mat[c] += piece_value[board[x]];
+        }
     }
-  }
 }
 
 int GetTime()
 {
-  struct timeb timebuffer;
-  ftime(&timebuffer);
-  return (timebuffer.time * 1000) + timebuffer.millitm;
+    struct timeb timebuffer;
+    ftime(&timebuffer);
+    return (timebuffer.time * 1000) + timebuffer.millitm;
 }
 
 char* MoveString(int start, int dest, int promote)
 {
-  static char str[6];
+    static char str[6];
 
-  char c;
+    char c;
 
-  if (promote > 0) {
-    switch (promote) {
-    case N:
-      c = 'n';
-      break;
-    case B:
-      c = 'b';
-      break;
-    case R:
-      c = 'r';
-      break;
-    default:
-      c = 'q';
-      break;
+    if (promote > 0) {
+        switch (promote) {
+        case N:
+            c = 'n';
+            break;
+        case B:
+            c = 'b';
+            break;
+        case R:
+            c = 'r';
+            break;
+        default:
+            c = 'q';
+            break;
+        }
+        sprintf_s(str, "%c%d%c%d%c",
+            col[start] + 'a',
+            row[start] + 1,
+            col[dest] + 'a',
+            row[dest] + 1,
+            c);
     }
-    sprintf_s(str, "%c%d%c%d%c",
-      col[start] + 'a',
-      row[start] + 1,
-      col[dest] + 'a',
-      row[dest] + 1,
-      c);
-  }
-  else
-    sprintf_s(str, "%c%d%c%d",
-      col[start] + 'a',
-      row[start] + 1,
-      col[dest] + 'a',
-      row[dest] + 1);
-  return str;
+    else
+        sprintf_s(str, "%c%d%c%d",
+            col[start] + 'a',
+            row[start] + 1,
+            col[dest] + 'a',
+            row[dest] + 1);
+    return str;
 }

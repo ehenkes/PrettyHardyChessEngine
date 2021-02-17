@@ -10,7 +10,7 @@
 void ShowAll(int ply);//
 
 //// Eigene Definitionen
-#define MAXDEPTH 14 
+#define MAXDEPTH 13 
 //// Eigene Definitionen
 
 #define U64 unsigned __int64 
