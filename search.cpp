@@ -1,4 +1,5 @@
 #include <setjmp.h>
+#include <iostream>
 
 #include "globals.h"
 
@@ -68,6 +69,15 @@ void think()
 		}
 
 		x = Search(-10000, 10000, i);
+		
+		// output for UCI
+		if (LookUp(side))
+		{
+			std::cout << "info depth " << i << " score cp " << x 
+				      << " nodes " << nodes << " pv";
+			DisplayPV(i);
+			std::cout << std::endl;
+		}
 
 		printf("%0*d\t%*d\t  %*d\t  %*d\t", 3, i, 
 			                               4, x, 
@@ -75,7 +85,7 @@ void think()
 			                              20, nodes);
 
 		if(LookUp(side))
-		{
+		{			
 			DisplayPV(i);
 		}
 		else
