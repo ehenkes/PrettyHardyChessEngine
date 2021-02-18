@@ -387,6 +387,24 @@ void UCI()
                 fixed_time = 1;
                 max_depth = MAX_PLY;
             }
+            else if (!strcmp(parameter, "depth"))
+            {
+                int value;
+                std::cin >> value;
+                streamToLog << currentDateTime() << ": "
+                    << "Depth wurde auf '" << value << " Halbzuege gesetzt." << std::endl;
+                printf(" Engine received depth ");
+                max_depth = value; // values are given in plies (Halbzuege)
+                fixed_depth = 1;                
+            }
+            else if (!strcmp(parameter, "infinite")) 
+            {
+                streamToLog << currentDateTime() << ": "
+                    << "Depth und Movetime wurde auf infinite gesetzt." << std::endl;
+                printf(" Engine received infinite. We use MAXDEPTH.");
+                max_depth = MAXDEPTH; // values are given in plies (Halbzuege)
+                fixed_depth = 1;                
+            }
             else {
                 strcpy(command, parameter);
                 optionalCommand = true;
