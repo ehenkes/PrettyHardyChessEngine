@@ -232,6 +232,7 @@ void UCI()
     int analyze = 0;
     int lookup;
     bool gameIsRunning = true;
+    bool optionalCommand = false;
 
     signal(SIGINT, SIG_IGN);
     printf("\n");
@@ -247,15 +248,21 @@ void UCI()
         << "option name Ponder 0\n"
         << "uciok" << std::endl;
 
-    std::fstream f; // file fuer log-Datei
-    f.open("log.txt", std::ios::out);
+    std::fstream streamToLog;
+    streamToLog.open("log.txt", std::ios::out);
 
     while (gameIsRunning)
     {
         fflush(stdout);
 
-        std::cin >> command;
-        f << currentDateTime() << ": " << command << std::endl; // command in ein logfile ausgeben
+        if (!optionalCommand) {
+          std::cin >> command;
+        }
+        else {
+          optionalCommand ^= 1;
+        }
+
+        streamToLog << currentDateTime() << ": " << command << std::endl;
 
         if (!strcmp(command, "isready"))
         {
@@ -266,7 +273,7 @@ void UCI()
         if (!strcmp(command, "setoption"))
         {
             std::cin >> parameter;
-            f << "\t" << parameter << std::endl;
+            streamToLog << "\t" << parameter << std::endl;
             continue;
         }
 
@@ -280,23 +287,18 @@ void UCI()
         if (!strcmp(command, "position"))
         {
             std::cin >> parameter;
-            f << "\t" << parameter << std::endl;
+            streamToLog << "\t" << parameter << std::endl;
 
             if (!strcmp(parameter, "startpos"))
             {
                 std::cin >> parameter;
-                /*
-                if (!strcmp(parameter,"go"))
-                {
-                    strcpy(command, "go");
-                    continue;
-                }
-                */
-                
-                f << "\t" << parameter << std::endl;
+                streamToLog << "\t" << parameter << std::endl;
 
                 if (strcmp(parameter, "moves")) {
-                    computer_side = White;
+                  strcpy(command, parameter);
+                  computer_side = White;
+                  optionalCommand = true;
+                  continue;
                 }
                 else {
                     if (!fgets(line, 2048, stdin)) {
@@ -345,38 +347,25 @@ void UCI()
             continue;
         }
 
-        /*
-        if (!strcmp(command, "movetime"))
-        {
-            int value;
-            std::cin >> value;
-            f << "\t" << value << std::endl;
-            max_time = value; // ??? ms
-            fixed_time = 1;
-            max_depth = MAX_PLY;
-            continue;
-        }
-        */
-
         if (!strcmp(command, "go"))
         {
-            computer_side = side;
-            
-            /*
-            std::cin >> parameter;
-            f << "\t" << parameter << std::endl;
-            
-            if (!strcmp(parameter, "movetime"))
-            {
-                int value;
-                std::cin >> value;
-                f << "\t" << value << std::endl;
-                max_time = value; // ??? ms
-                fixed_time = 1;
-                max_depth = MAX_PLY;                
-            }
-            */
-            continue;
+          computer_side = side;
+          std::cin >> parameter;
+          if (!strcmp(parameter, "movetime"))
+          {
+            int value;
+            std::cin >> value;
+            streamToLog << currentDateTime() << ": "
+              << "Movetime wurde auf '" << value << "' ms gesetzt." << std::endl;
+            printf(" Engine received movetime ");
+            max_time = value; // values are given in [ms]
+            fixed_time = 1;
+            max_depth = MAX_PLY;
+          }
+          else {
+            strcpy(command, parameter);
+            optionalCommand = true;
+          }
         }
 
         if (side == computer_side)
@@ -416,7 +405,7 @@ void UCI()
         if (!strcmp(command, "quit") || !strcmp(command, "stop"))
             gameIsRunning = false;
     }
-    f.close(); // file fuer log-Datei schliessen
+    streamToLog.close(); // file fuer log-Datei schliessen
 }
 
 void PrintResult()
