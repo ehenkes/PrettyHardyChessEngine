@@ -11,7 +11,7 @@ const U64 HASHSIZE = 5000000;
 
 int hash_start,hash_dest;
 
-U64 Random2(int x);//
+//U64 Random2(int x);//
 
 struct hashp
 {
@@ -153,13 +153,15 @@ hash_dest = hashpos[s][currentkey].dest;
 return true;
 }
 
+/*
 U64 Random2(int x)
 {
-U64 r = 0;
-for(int y=0;y<x;y++)//23
-{
-	if(rand()%100<50) 
-		;//SetBit(r,y);
+	U64 r = 0;
+	for(int y=0;y<x;y++)//23
+	{
+		if(rand()%100<50) 
+			;//SetBit(r,y);
+	}
+	return r;
 }
-return r;
-}
+*/

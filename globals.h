@@ -172,9 +172,9 @@ extern U64 currentkey,currentlock;
 
 extern int fixed_time;
 extern int fixed_depth;
-extern int max_time;
-extern int start_time;
-extern int stop_time;
+extern U64 max_time;
+extern U64 start_time;
+extern U64 stop_time;
 extern int max_depth;
 
 extern int qrb_moves[64][9];
@@ -286,8 +286,7 @@ int LookUpPawn();
 void AddPawnKey(const int s,const int x);
 
 //main.cpp
-int main();
-int GetTime();
+U64 GetTime();
 char *MoveString(int from,int to,int promote);
 void NewPosition();
 int ParseMove(char *s);

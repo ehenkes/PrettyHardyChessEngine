@@ -79,7 +79,7 @@ void think()
 			std::cout << std::endl;
 		}
 
-		printf("%0*d\t%*d\t  %*d\t  %*d\t", 3, i, 
+		printf("%0*d\t%*d\t  %*llu\t  %*d\t", 3, i, 
 			                               4, x, 
 			                               7, (GetTime() - start_time) / 10, 
 			                              20, nodes);

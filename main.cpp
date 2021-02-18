@@ -29,6 +29,14 @@ int board_color[64] =
 };
 
 int LoadDiagram(char* file, int);
+
+/// <summary>
+///  Eigene ParseFEN Funktion
+/// </summary>
+/// <param name="ts"></param>
+int ParseFEN(const char* ts);
+char ts[200];
+
 void CloseDiagram();
 
 FILE* diagram_file;
@@ -41,9 +49,9 @@ int player[2];
 
 int fixed_time;
 int fixed_depth;
-int max_time;
-int start_time;
-int stop_time;
+U64 max_time;
+U64 start_time;
+U64 stop_time;
 int max_depth;
 int turn = 0;
 
@@ -70,15 +78,15 @@ int main()
     printf("Version 0.1\n");
 
     char s[256];
-    char sFen[256];
-    char sText[256];
+    //char sFen[256];  // wird nirgends verwendet
+    //char sText[256]; // wird nirgends verwendet
 
-    int m;
-    int turns = 0;
-    int t;
-    int lookup;
+    //int m;           // wird nirgends verwendet
+    //int turns = 0;   // wird nirgends verwendet
+    //int t;           // wird nirgends verwendet
+    //int lookup;      // wird nirgends verwendet
 
-    double nps;
+    //double nps;      // wird nirgends verwendet
 
     fixed_time = 0;
 
@@ -357,6 +365,8 @@ void UCI()
 
                 // fen umsetzen in Position, Rochade-Optionen, Seite am Zug ...
                 // https://de.wikipedia.org/wiki/Forsyth-Edwards-Notation#:~:text=Die%20Forsyth%2DEdwards%2DNotation%20(,Jahrhundert%20popul%C3%A4r.
+
+                ParseFEN(fen.c_str()); 
             }            
 
             continue;
@@ -595,6 +605,94 @@ int LoadDiagram(char* file, int num)
     return 0;
 }
 
+int ParseFEN(const char* ts)
+{
+    int x, n = 0;
+    static int count = 1;    
+
+    for (x = 0; x < 64; x++)
+    {
+        board[x] = EMPTY;
+    }
+    memset(bit_pieces, 0, sizeof(bit_pieces));
+    memset(bit_units, 0, sizeof(bit_units));
+    bit_all = 0;
+
+    int c = 0, i = 0, j;
+
+    while (ts)
+    {
+        if (ts[c] >= '0' && ts[c] <= '8')
+            i += ts[c] - 48;
+        if (ts[c] == '\\')
+            continue;
+        j = Flip[i];
+
+        switch (ts[c])
+        {
+            case 'K': AddPiece(0, 5, j); i++; break;
+            case 'Q': AddPiece(0, 4, j); i++; break;
+            case 'R': AddPiece(0, 3, j); i++; break;
+            case 'B': AddPiece(0, 2, j); i++; break;
+            case 'N': AddPiece(0, 1, j); i++; break;
+            case 'P': AddPiece(0, 0, j); i++; break;
+            case 'k': AddPiece(1, 5, j); i++; break;
+            case 'q': AddPiece(1, 4, j); i++; break;
+            case 'r': AddPiece(1, 3, j); i++; break;
+            case 'b': AddPiece(1, 2, j); i++; break;
+            case 'n': AddPiece(1, 1, j); i++; break;
+            case 'p': AddPiece(1, 0, j); i++; break;
+        }
+        c++;
+        if (ts[c] == ' ')
+            break;
+        if (i > 63)
+            break;
+    }
+    
+    // Welche Seite ist am Zug?
+    if (ts[c] == ' ' && ts[c + 2] == ' ')
+    {
+        if (ts[c + 1] == 'w') // Weiß zieht
+        {
+            side = 0; xside = 1;
+        }
+        if (ts[c + 1] == 'b') // Schwarz zieht
+        {
+            side = 1; xside = 0;
+        }
+    }
+
+    // Welche Rochaden sind bei Weiß und Schwarz erlaubt?
+    castle = 0;
+    while (ts[c])
+    {
+        switch (ts[c])
+        {
+        case '-': break;
+        case 'K':if (bit_pieces[0][K] & mask[E1]) castle |= 1; break;
+        case 'Q':if (bit_pieces[0][K] & mask[E1]) castle |= 2; break;
+        case 'k':if (bit_pieces[1][K] & mask[E8]) castle |= 4; break;
+        case 'q':if (bit_pieces[1][K] & mask[E8]) castle |= 8; break;
+        default:break;
+        }
+        c++;
+    }
+
+    CloseDiagram();
+    DisplayBoard();
+    NewPosition();
+    Gen(side, xside);
+    // printf(" diagram # %d \n", num + count);
+    count++;
+    if (side == 0)
+        printf("White to move\n");
+    else
+        printf("Black to move\n");
+    printf(" %s \n", ts);
+    return 0;
+}
+
 void CloseDiagram()
 {
     if (diagram_file)
@@ -663,7 +761,7 @@ void SetMaterial()
     }
 }
 
-int GetTime()
+U64 GetTime() // integer als return value erscheint unpassend!?
 {
     struct timeb timebuffer;
     ftime(&timebuffer);
