@@ -256,10 +256,10 @@ void UCI()
         fflush(stdout);
 
         if (!optionalCommand) {
-          std::cin >> command;
+            std::cin >> command;
         }
         else {
-          optionalCommand ^= 1;
+            optionalCommand ^= 1;
         }
 
         streamToLog << currentDateTime() << ": " << command << std::endl;
@@ -283,7 +283,7 @@ void UCI()
             computer_side = EMPTY;
             continue;
         }
-        
+
         if (!strcmp(command, "position"))
         {
             std::cin >> parameter;
@@ -295,10 +295,10 @@ void UCI()
                 streamToLog << "\t" << parameter << std::endl;
 
                 if (strcmp(parameter, "moves")) {
-                  strcpy(command, parameter);
-                  computer_side = White;
-                  optionalCommand = true;
-                  continue;
+                    strcpy(command, parameter);
+                    computer_side = White;
+                    optionalCommand = true;
+                    continue;
                 }
                 else {
                     if (!fgets(line, 2048, stdin)) {
@@ -344,28 +344,43 @@ void UCI()
                     }
                 }
             }
+
+            /// 
+            /// Forsyth-Edwards-Notation (FEN) auslesen
+            /// 
+            if (!strcmp(parameter, "fen"))
+            {
+                std::string fen, input;
+                getline(std::cin, input);
+                fen = input.substr(1, fen.length() - 1); // vorne wird ein space eingelesen
+                streamToLog << "\t" << fen << std::endl;
+
+                // fen umsetzen in Position, Rochade-Optionen, Seite am Zug ...
+                // https://de.wikipedia.org/wiki/Forsyth-Edwards-Notation#:~:text=Die%20Forsyth%2DEdwards%2DNotation%20(,Jahrhundert%20popul%C3%A4r.
+            }            
+
             continue;
         }
 
         if (!strcmp(command, "go"))
         {
-          computer_side = side;
-          std::cin >> parameter;
-          if (!strcmp(parameter, "movetime"))
-          {
-            int value;
-            std::cin >> value;
-            streamToLog << currentDateTime() << ": "
-              << "Movetime wurde auf '" << value << "' ms gesetzt." << std::endl;
-            printf(" Engine received movetime ");
-            max_time = value; // values are given in [ms]
-            fixed_time = 1;
-            max_depth = MAX_PLY;
-          }
-          else {
-            strcpy(command, parameter);
-            optionalCommand = true;
-          }
+            computer_side = side;
+            std::cin >> parameter;
+            if (!strcmp(parameter, "movetime"))
+            {
+                int value;
+                std::cin >> value;
+                streamToLog << currentDateTime() << ": "
+                    << "Movetime wurde auf '" << value << "' ms gesetzt." << std::endl;
+                printf(" Engine received movetime ");
+                max_time = value; // values are given in [ms]
+                fixed_time = 1;
+                max_depth = MAX_PLY;
+            }
+            else {
+                strcpy(command, parameter);
+                optionalCommand = true;
+            }
         }
 
         if (side == computer_side)
