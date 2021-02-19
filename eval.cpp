@@ -1,4 +1,6 @@
 #include "globals.h"
+#include <time.h>
+#include <fstream>
 
 const int ISOLATED = 20;
 
@@ -78,6 +80,10 @@ int Eval()
 	U64 b1;
 	int sq;
 
+	//std::fstream streamToLogEval("logEval.txt", std::ios::out);
+	
+	int countBishops[2] = { 0,0 };
+
 	for(int x=0;x<2;x++)
 	{
 		b1 = bit_pieces[x][P]; // pawn
@@ -103,8 +109,12 @@ int Eval()
 			sq = NextBit(b1);
 			b1 &= not_mask[sq];
 			score[x] += square_score[x][B][sq];
+			countBishops[x]++;
 		}
-		
+		//streamToLogEval << currentDateTime() << ": " << (x ? "Black" : "White") << " owns " << countBishops[x] << " bishops." << std::endl;
+		if (countBishops[x] > 1) // Laeuferpaar
+			score[x] += BISHOPSPAIR;
+				
 		b1 = bit_pieces[x][R]; // rook
 		while(b1)
 		{
@@ -154,6 +164,7 @@ int Eval()
 
 	// There are plenty of things that could be added to the eval function.
 
+	//streamToLogEval.close();
 	return score[side] - score[xside]; // It returns the side to move's score minus the opponent's score.
 }
 /*

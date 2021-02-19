@@ -526,7 +526,7 @@ int reps()
     return r;
 }
 
-int LoadDiagram(char* file, int num)
+int LoadDiagram(char* file, int num) // wird nicht verwendet
 {
     int x, n = 0;
     static int count = 1;

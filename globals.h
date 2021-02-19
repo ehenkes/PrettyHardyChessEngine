@@ -6,11 +6,13 @@
 #include <string.h>
 #include <dos.h>
 #include <time.h>
+#include <string>
 
 void ShowAll(int ply);//
 
 //// Eigene Definitionen
 #define MAXDEPTH 14 
+#define BISHOPSPAIR 25 // Additional score is +0.25 for the bishop's pair
 //// Eigene Definitionen
 
 #define U64 unsigned __int64 
@@ -286,6 +288,7 @@ int LookUpPawn();
 void AddPawnKey(const int s,const int x);
 
 //main.cpp
+const std::string currentDateTime();
 U64 GetTime();
 char *MoveString(int from,int to,int promote);
 void NewPosition();
