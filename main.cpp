@@ -97,7 +97,7 @@ int main()
         if (scanf("%s", s) == EOF)
             return 0;
 
-        if (!strcmp(s, "uci"))
+        if (!strcmp(s, "uci")) // Universal Chess Interface
         {
             UCI();
             break;
@@ -405,7 +405,8 @@ void UCI()
                 max_depth = MAXDEPTH; // values are given in plies (Halbzuege)
                 fixed_depth = 1;                
             }
-            else {
+            else 
+            {
                 strcpy(command, parameter);
                 optionalCommand = true;
             }
@@ -446,8 +447,11 @@ void UCI()
         }
 
         if (!strcmp(command, "quit") || !strcmp(command, "stop"))
-            gameIsRunning = false;
-    }
+        {
+            gameIsRunning = false;            
+        }            
+    }//while
+
     streamToLog.close(); // file fuer log-Datei schliessen
 }
 

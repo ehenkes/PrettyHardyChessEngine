@@ -1,6 +1,6 @@
 #include "globals.h"
 
-#define ISOLATED 20
+const int ISOLATED = 20;
 
 int EvalPawn(const int s,const int x);
 int EvalRook(const int s,const int x);
@@ -9,6 +9,7 @@ int queenside_pawns[2],kingside_pawns[2];
 extern U64 mask_kingside;
 extern U64 mask_queenside;
 
+// pawn defence score 
 const int queenside_defence[2][64]=
 {
 {
@@ -32,6 +33,7 @@ const int queenside_defence[2][64]=
 	0, 0, 0, 0, 0, 0, 0, 0
 }};
 
+// pawn defence score
 const int kingside_defence[2][64]=
 {
 {
@@ -56,86 +58,103 @@ const int kingside_defence[2][64]=
 }};
 /*
 
-Eval() is simple. Firstly it adds the square scores for each piece of both sides.
+Eval() is simple. 
+Firstly it adds the square scores for each piece of both sides.
 If the opponent does not have a queen it adds the endgame score for each king.
 If the opponent has a queen it adds the pawn defence score for each king.
-It turn returns the side to moves score minus the opponent's score.
+It returns the side to move's score minus the opponent's score.
 There are plenty of things that could be added to the eval function.
 
 */
 int Eval()
 {
-int score[2] = {0,0};
+	int score[2] = {0,0};
 
-queenside_pawns[0] = 0;
-queenside_pawns[1] = 0;
-kingside_pawns[0] = 0;
-kingside_pawns[1] = 0;
+	queenside_pawns[0] = 0;
+	queenside_pawns[1] = 0;
+	kingside_pawns[0] = 0;
+	kingside_pawns[1] = 0;
 
-U64 b1;
-int sq;
+	U64 b1;
+	int sq;
 
-for(int x=0;x<2;x++)
-{
-	b1 = bit_pieces[x][P];
-	while(b1)
+	for(int x=0;x<2;x++)
 	{
-		sq = NextBit(b1);
-		b1 &= not_mask[sq];
-		score[x] += square_score[x][P][sq];
-		score[x] += EvalPawn(x,sq);
-	}
-	b1 = bit_pieces[x][N];
-	while(b1)
-	{
-		sq = NextBit(b1);
-		b1 &= not_mask[sq];
-		score[x] += square_score[x][N][sq];
-	}
-	b1 = bit_pieces[x][B];
-	while(b1)
-	{
-		sq = NextBit(b1);
-		b1 &= not_mask[sq];
-		score[x] += square_score[x][B][sq];
-	}
-	b1 = bit_pieces[x][R];
-	while(b1)
-	{
-		sq = NextBit(b1);
-		b1 &= not_mask[sq];
-		score[x] += square_score[x][R][sq];
-		score[x] += EvalRook(x,sq);
-	}
-	b1 = bit_pieces[x][Q];
-	while(b1)
-	{
-		sq = NextBit(b1);
-		b1 &= not_mask[sq];
-		score[x] += square_score[x][Q][sq];
-	}
-}
-  if(bit_pieces[1][Q]==0)
-    score[0] += king_endgame[0][NextBit(bit_pieces[0][K])];
-  else
-  {
-	if(bit_pieces[0][K] & mask_kingside)
-		score[0] += kingside_pawns[0];
-	else if(bit_pieces[0][K] & mask_queenside)
-		score[0] += queenside_pawns[0];
-  }
+		b1 = bit_pieces[x][P]; // pawn
+		while(b1)
+		{
+			sq = NextBit(b1);
+			b1 &= not_mask[sq];
+			score[x] += square_score[x][P][sq];
+			score[x] += EvalPawn(x,sq); // Besonderheit bei Pawn
+		}
+		
+		b1 = bit_pieces[x][N]; // knight
+		while(b1)
+		{
+			sq = NextBit(b1);
+			b1 &= not_mask[sq];
+			score[x] += square_score[x][N][sq];
+		}
+		
+		b1 = bit_pieces[x][B]; // bishop
+		while(b1)
+		{
+			sq = NextBit(b1);
+			b1 &= not_mask[sq];
+			score[x] += square_score[x][B][sq];
+		}
+		
+		b1 = bit_pieces[x][R]; // rook
+		while(b1)
+		{
+			sq = NextBit(b1);
+			b1 &= not_mask[sq];
+			score[x] += square_score[x][R][sq];
+			score[x] += EvalRook(x,sq); // Besonderheit bei Rook: EvalRook() evaluates each rook and gives a bonus for being
+			                            // on an open file or half - open file.
+		}
+		
+		b1 = bit_pieces[x][Q]; // queen
+		while(b1)
+		{
+			sq = NextBit(b1);
+			b1 &= not_mask[sq];
+			score[x] += square_score[x][Q][sq];
+		}
+	}//for
 
-  if(bit_pieces[0][Q]==0)
-    score[1] += king_endgame[1][NextBit(bit_pieces[1][K])];
-   else
-  {
-	if(bit_pieces[1][K] & mask_kingside)
-		score[1] += kingside_pawns[1];
-	else if(bit_pieces[1][K] & mask_queenside)
-		score[1] += queenside_pawns[1];
-  }
+	if (bit_pieces[1][Q] == 0) // If the opponent does not have a queen it adds the endgame score for each king.
+	{
+		score[0] += king_endgame[0][NextBit(bit_pieces[0][K])];
+	}
+	else // If the opponent has a queen it adds the pawn defence score for each king.
+	{
+		if (bit_pieces[0][K] & mask_kingside)
+		{
+			score[0] += kingside_pawns[0];
+		}			
+		else if (bit_pieces[0][K] & mask_queenside)
+		{
+			score[0] += queenside_pawns[0];
+		}			
+	}
 
-  return score[side] - score[xside];
+	if (bit_pieces[0][Q] == 0)
+	{
+		score[1] += king_endgame[1][NextBit(bit_pieces[1][K])];
+	}
+	else
+	{
+		if(bit_pieces[1][K] & mask_kingside)
+			score[1] += kingside_pawns[1];
+		else if(bit_pieces[1][K] & mask_queenside)
+			score[1] += queenside_pawns[1];
+	}
+
+	// There are plenty of things that could be added to the eval function.
+
+	return score[side] - score[xside]; // It returns the side to move's score minus the opponent's score.
 }
 /*
 

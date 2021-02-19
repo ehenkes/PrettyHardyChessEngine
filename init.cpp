@@ -29,9 +29,13 @@ char piece_char[6] =
 	'P', 'N', 'B', 'R', 'Q', 'K'
 };
 
+
+// Werte für Figuren, Reihenfolge 'P', 'N', 'B', 'R', 'Q', 'K' 
+// Wert für Läufer von 300 versuchsweise auf 325 geändert am 19.02.2021
+//
 int piece_value[6] = 
 {
-	100, 300, 300, 500, 900, 10000
+	100, 300, 325, 500, 900, 10000
 };
 
 int init_color[64] = 
@@ -82,7 +86,8 @@ const int row[64]=
 	7, 7, 7, 7, 7, 7, 7, 7
 };
 
-const int nwdiag[64]={
+const int nwdiag[64]=
+{
 	 14,13,12,11,10, 9, 8, 7,
 	 13,12,11,10, 9, 8, 7, 6,
 	 12,11,10, 9, 8, 7, 6, 5,
@@ -93,7 +98,8 @@ const int nwdiag[64]={
 	  7, 6, 5, 4, 3, 2, 1, 0
 };
 
-const int nediag[64]={
+const int nediag[64]=
+{
 	 7, 8,9,10,11,12,13,14,
 	 6, 7,8, 9,10,11,12,13,
 	 5, 6,7, 8, 9,10,11,12,
@@ -273,28 +279,28 @@ Sets up variables for a new game.
 */
 void InitBoard()
 {
-int x;
-for(x=0;x<64;x++)
-{
-	board[x]=EMPTY;
-}
-memset(bit_pieces,0,sizeof(bit_pieces));
-memset(bit_units,0,sizeof(bit_units));
-bit_all = 0;
+	int x;
+	for(x=0;x<64;x++)
+	{
+		board[x]=EMPTY;
+	}
+	memset(bit_pieces,0,sizeof(bit_pieces));
+	memset(bit_units,0,sizeof(bit_units));
+	bit_all = 0;
 
-for (x = 0; x < 64; ++x) 
-{
-	if(init_board[x]<6)
-		AddPiece(init_color[x],init_board[x],x);
-}
-side = 0;
-xside = 1;
-fifty = 0;
-castle = 15;
-ply = 0;
-hply = 0;
-first_move[0] = 0;
-turn = 0;
+	for (x = 0; x < 64; ++x) 
+	{
+		if(init_board[x]<6)
+			AddPiece(init_color[x],init_board[x],x);
+	}
+	side = 0;
+	xside = 1;
+	fifty = 0;
+	castle = 15;
+	ply = 0;
+	hply = 0;
+	first_move[0] = 0;
+	turn = 0;
 }
 /*
 
@@ -324,10 +330,10 @@ void NewPosition()
 Alg displays a move.
 
 */
-void Alg(int a,int b)
+void Alg(int a, int b)
 {
-Algebraic(a);
-Algebraic(b);
+	Algebraic(a);
+	Algebraic(b);
 }
 /*
 
@@ -458,63 +464,71 @@ int GetBest(int ply);//
 void ShowAll(int ply)
 {
 
-move *g;
-DisplayBoard();
-memset(done, 0, sizeof(done));
+	move *g;
+	DisplayBoard();
+	memset(done, 0, sizeof(done));
 
-          printf(" ply ");
-        printf("%d",ply);
-        printf(" nodes ");
-        printf("%d",nodes);
-        printf(" side ");
-        printf("%d",side);
-        printf(" xside ");
-        printf("%d",xside);
-        printf("\n");
+    printf(" ply ");
+    printf("%d",ply);
+    printf(" nodes ");
+    printf("%d",nodes);
+    printf(" side ");
+    printf("%d",side);
+    printf(" xside ");
+    printf("%d",xside);
+    printf("\n");
   
-	 printf(" one %d ",first_move[ply]);
-	  printf(" two %d ",first_move[ply+1]);
-	  Alg(move_list[first_move[0]].start,move_list[first_move[0]].dest);
-			
-        printf("\n");
+	printf(" one %d ",first_move[ply]);
+	printf(" two %d ",first_move[ply+1]);
+	    
+	Alg(move_list[first_move[0]].start,move_list[first_move[0]].dest);
+	printf("\n");
  
      int j;
-  for(int i=first_move[ply];i<first_move[ply+1];i++)
-  //     for(int i=first_move[ply+1];i<first_move[ply + 2];i++)
-    {
-        j = GetBest(ply);
-        {
-        //how dest display current line?
-        g = &move_list[j];
-        printf("%s",MoveString(move_list[j].start,move_list[j].dest,move_list[j].promote));
-        printf(" ");
-        printf(" score ");
-        printf("%d",g->score);
-        printf("\n");
-        }
-    }
- printf("\n");
+	 for(int i=first_move[ply];i<first_move[ply+1];i++)
+	 //     for(int i=first_move[ply+1];i<first_move[ply + 2];i++)
+	 {
+			j = GetBest(ply);
+			{
+				//how dest display current line?
+				g = &move_list[j];
+				printf("%s",MoveString(move_list[j].start,move_list[j].dest,move_list[j].promote));
+				printf(" ");
+				printf(" score ");
+				printf("%d",g->score);
+				printf("\n");
+			}
+	 }
+	 printf("\n");
  
   _getch();
 }
 
 int GetBest(int ply)
 {
-move *g;
-int bestscore = -100000000;
-int best = 0;
-  for(int i=0;i<first_move[ply+1]-first_move[ply];i++)
-  {
-    if(done[i] == 1) continue;
-    g = &move_list[first_move[ply] + i];
-    if(g->start == 0 && g->dest == 0)
-      continue;//
-    if(g->score > bestscore)
-    {
-        bestscore= g->score;
-        best = i;
-    }
-  }
-  if(best<1000) done[best]=1;//1000?
-  return first_move[ply]+best;
+	move *g;
+	int bestscore = -100000000;
+	int best = 0;
+	
+	for(int i=0;i<first_move[ply+1]-first_move[ply];i++)
+	{
+		if(done[i] == 1) 
+			continue;
+		
+		g = &move_list[first_move[ply] + i];
+		
+		if(g->start == 0 && g->dest == 0)
+			continue;//
+		
+		if(g->score > bestscore)
+		{
+			bestscore= g->score;
+			best = i;
+		}
+	}
+
+	if(best<1000) 
+		done[best]=1;//1000?
+	
+	return first_move[ply]+best;
 }

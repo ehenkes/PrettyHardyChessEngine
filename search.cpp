@@ -459,9 +459,9 @@ void DisplayPV(int i)
 		if(LookUp(side)==false)
 			break;
 		printf(" ");
-		Alg(hash_start,hash_dest);
+		Alg(hash_start,hash_dest); // The function Algebraic displays a square
 		MakeMove(hash_start,hash_dest);
 	}
 	while (ply)
-		TakeBack();
+		TakeBack(); // TakeBack is the opposite of MakeMove
 }
