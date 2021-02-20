@@ -111,8 +111,8 @@ void ShowAll(int ply);//
 #define Black 1
 
 #define MAX_PLY 64
-#define MOVE_STACK 4000
-#define GAME_STACK 2000
+#define MOVE_STACK 40000 // erhoeht um Faktor 10
+#define GAME_STACK 20000 // erhoeht um Faktor 10
 
 #define HASH_SCORE    100000000
 #define CAPTURE_SCORE 10000000

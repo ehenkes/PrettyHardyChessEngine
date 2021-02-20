@@ -1,5 +1,7 @@
 #include <setjmp.h>
 #include <iostream>
+#include <iomanip> 
+#include <fstream>
 
 #include "globals.h"
 
@@ -15,6 +17,9 @@ int move_start,move_dest;
 
 int LowestAttacker(const int s, const int xs,const int sq);
 
+static int debugDepth = 0; //DEBUG
+std::fstream streamToLogSearch("logSearch.txt", std::ios::out); //DEBUG
+
 /*
 
 think() iterates until the maximum depth for the move is reached or until the allotted time
@@ -24,22 +29,26 @@ After each iteration the principal variation is then displayed.
 */
 void think()
 {
+	debugDepth = 0; //DEBUG
+	streamToLogSearch << "\n" << "-------------" << std::endl; //DEBUG
+
 	int x;
-
 	stop_search = false;
-
-	setjmp(env);
+    setjmp(env);
+	
 	if (stop_search) 
 	{
 		while (ply)
 			TakeBack();
 		return;
 	}
+
 	if(fixed_time==0)
 	{
 		if (Attack(xside,NextBit(bit_pieces[side][K])))
 			max_time = max_time/2;
 	}
+
 	start_time = GetTime();
 	stop_time = start_time + max_time;
 
@@ -48,7 +57,6 @@ void think()
    
 	NewPosition();
 	memset(history, 0, sizeof(history));	
-	//printf("ply      nodes  score  pv\n");
 	printf("ply    score         time\t\t\t nodes\t principal variation\n");
 	for (int i = 1; i <= max_depth; ++i) 
 	{
@@ -125,6 +133,7 @@ Otherwise, if it is greater than alpha, alpha is changed.
 If there were no legal moves it is either checkmate or stalemate.
 
 */
+
 int Search(int alpha, int beta, int depth)
 {
 	if (ply && reps2())
@@ -163,7 +172,7 @@ int Search(int alpha, int beta, int depth)
 	int c = 0;
 	int x;
 	int d;
-
+		
 	for (int i = first_move[ply]; i < first_move[ply + 1]; ++i) 
 	{
 			Sort(i);
@@ -180,15 +189,15 @@ int Search(int alpha, int beta, int depth)
 		}
 		else
 		{
-		   d = depth - 3;
-		if(move_list[i].score > CAPTURE_SCORE || c==1 || check==1)
-		{
-		   d = depth - 1;
-		}
-		else if(move_list[i].score > 0) 
-		{
-			d = depth - 2;
-		}
+		    d = depth - 3;
+			if(move_list[i].score > CAPTURE_SCORE || c==1 || check==1)
+			{
+			    d = depth - 1;
+			}
+			else if(move_list[i].score > 0) 
+			{
+				d = depth - 2;
+			}
 		}
 
 		x = -Search(-beta, -alpha, d);
@@ -211,7 +220,7 @@ int Search(int alpha, int beta, int depth)
 			}
 		alpha = x;
 		}
-	}
+	}	
 	
 	if (c == 0) 
 	{
@@ -226,6 +235,18 @@ int Search(int alpha, int beta, int depth)
 	if (fifty >= 100)
 		return 0;
 	AddHash(side, bestmove);
+
+	//DEBUG
+	
+	if (depth > debugDepth)
+	{
+		debugDepth++;
+		streamToLogSearch << "depth " << std::setw(3) << depth << "\t"
+						  << MoveString(bestmove.start, bestmove.dest, bestmove.promote)
+				<< "\t" << " score " << std::setw(9) << bestmove.score << std::endl;
+	}
+	//DEBUG
+
 	return alpha;
 }
 /*
@@ -290,7 +311,6 @@ if (x > alpha)
 	}
 	return x;
 }
-
 return alpha;
 }
 /*
@@ -383,6 +403,7 @@ int reps2()
 	}
 	return 0;
 }
+
 /*
 
 Sort searches the move list for the move with the highest score.
