@@ -74,8 +74,7 @@ const std::string currentDateTime() {
 int main()
 {
     SetBits();
-    printf("Pretty Hardy Chess Engine\n");
-    printf("Version 0.1\n");
+    std::cout << "Pretty Hardy Chess Engine\n" << ("Version 0.2\n") << std::endl;
 
     char s[256];
     //char sFen[256];  // wird nirgends verwendet
@@ -263,10 +262,12 @@ void UCI()
     {
         fflush(stdout);
 
-        if (!optionalCommand) {
+        if (!optionalCommand) 
+        {
             std::cin >> command;
         }
-        else {
+        else 
+        {
             optionalCommand ^= 1;
         }
 
@@ -302,7 +303,8 @@ void UCI()
                 std::cin >> parameter;
                 streamToLog << "\t" << parameter << std::endl;
 
-                if (strcmp(parameter, "moves")) {
+                if (strcmp(parameter, "moves")) 
+                {
                     strcpy(command, parameter);
                     computer_side = White;
                     optionalCommand = true;
@@ -374,6 +376,8 @@ void UCI()
 
         if (!strcmp(command, "go"))
         {
+            bool blitztime = false; // Bsp. fuer Blitz: "go wtime 180000 btime 180000 winc 2000 binc 2000"
+            
             computer_side = side;
             std::cin >> parameter;
             if (!strcmp(parameter, "movetime"))
@@ -392,25 +396,89 @@ void UCI()
                 int value;
                 std::cin >> value;
                 streamToLog << currentDateTime() << ": "
-                    << "Depth wurde auf '" << value << " Halbzuege gesetzt." << std::endl;
+                    << "Depth wurde auf '" << value << "' Halbzuege gesetzt." << std::endl;
                 printf(" Engine received depth ");
                 max_depth = value; // values are given in plies (Halbzuege)
-                fixed_depth = 1;                
+                fixed_depth = 1;
             }
-            else if (!strcmp(parameter, "infinite")) 
+            else if (!strcmp(parameter, "infinite"))
             {
                 streamToLog << currentDateTime() << ": "
-                    << "Depth und Movetime wurde auf infinite gesetzt." << std::endl;
+                    << "Depth und Movetime wurde auf 'infinite' gesetzt." << std::endl;
                 printf(" Engine received infinite. We use MAXDEPTH.");
                 max_depth = MAXDEPTH; // values are given in plies (Halbzuege)
-                fixed_depth = 1;                
-            }
-            else 
+                fixed_depth = 1;
+            }                
+            else if (!strcmp(parameter, "wtime"))
+            {
+                streamToLog << "\t" << parameter << std::endl;
+                blitztime = true;
+
+                int value;
+                std::cin >> value;
+                streamToLog << "\tZeit fuer Weiss wurde auf '" << value << "' ms gesetzt." << std::endl;
+                printf(" Engine received wtime ");
+                //ToDo: Zeit für Weiss setzen
+                // 
+                // Erste Idee:
+                max_time = value / 60; // values are given in [ms]; 60 Zuege angenommen
+                fixed_time = 1;
+                max_depth = MAX_PLY;
+            }                
+            else
             {
                 strcpy(command, parameter);
                 optionalCommand = true;
             }
-        }
+            
+            while (blitztime)
+            {
+                std::cin >> parameter;
+                streamToLog << "\t" << parameter << std::endl;
+
+                if (!strcmp(parameter, "btime"))
+                {
+                    int value;
+                    std::cin >> value;
+                    streamToLog << "\tZeit fuer Schwarz wurde auf '" << value << "' ms gesetzt." << std::endl;
+                    printf(" Engine received btime ");
+                    blitztime = true;
+                    //ToDo: Zeit für Schwarz setzen ???
+                    //                    
+                }
+                else if (!strcmp(parameter, "winc"))
+                {
+                    int value;
+                    std::cin >> value;
+                    streamToLog << "\tInkrement pro Zug fuer Weiss wurde auf '" << value << "' ms gesetzt." << std::endl;
+                    printf(" Engine received winc ");
+                    blitztime = true;
+                    //ToDo: Zeit für Schwarz setzen
+                    //
+                    
+                    max_time += value; // values are given in [ms]; Inkrement wird pro Zug addiert                    
+                    streamToLog << "\tZeit pro Zug wurde (incl.Inkrement) auf '" << max_time << "' ms erhoeht." << std::endl;                                        
+                }
+                else if (!strcmp(parameter, "binc"))
+                {
+                    int value;
+                    std::cin >> value;
+                    streamToLog << "\tInkrement pro Zug fuer Schwarz wurde auf '" << value << "' ms gesetzt." << std::endl;
+                    printf(" Engine received binc ");
+                    //ToDo: Zeit für Schwarz setzen ???
+                    //
+                    blitztime = false; // Blitzdaten sind zu Ende
+                    streamToLog << "\tZeit pro Zug wurde (incl. Inkrement) auf '" << max_time << "' ms gesetzt." << std::endl;
+                }
+                else
+                {
+                    printf(" Engine received no winc ... binc ...");
+                    blitztime = false; // Blitzdaten sind zu Ende
+                    streamToLog << currentDateTime() << ": "
+                        << "Zeit pro Zug wurde (kein Inkrement) auf '" << max_time << "' ms gesetzt." << std::endl;
+                }
+            }//while
+        }//if
 
         if (side == computer_side)
         {

@@ -7,6 +7,7 @@
 #include <dos.h>
 #include <time.h>
 #include <string>
+#include "stdafx.h"
 
 void ShowAll(int ply);//
 
