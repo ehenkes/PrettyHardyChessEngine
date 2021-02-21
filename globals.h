@@ -175,10 +175,12 @@ extern U64 currentkey,currentlock;
 
 extern int fixed_time;
 extern int fixed_depth;
+extern int fixed_nodes;
 extern U64 max_time;
 extern U64 start_time;
 extern U64 stop_time;
 extern int max_depth;
+extern int max_nodes;
 
 extern int qrb_moves[64][9];
 extern int knight_moves[64][9];

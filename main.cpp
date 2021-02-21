@@ -50,10 +50,12 @@ int player[2];
 
 int fixed_time;
 int fixed_depth;
+int fixed_nodes;
 U64 max_time;
 U64 start_time;
 U64 stop_time;
 int max_depth;
+int max_nodes;
 int turn = 0;
 
 void PrintResult();
@@ -407,6 +409,19 @@ void UCI()
                 max_depth = value; // values are given in plies (Halbzuege)
                 fixed_depth = 1;
             }
+            else if (!strcmp(parameter, "nodes"))
+            {
+                int value;
+                std::cin >> value;
+                streamToLog << currentDateTime() << ": "
+                    << "Nodes wurde auf '" << value << "' gesetzt." << std::endl;
+                printf(" Engine received nodes ");
+                max_depth = MAX_PLY; // Halbzuege
+                fixed_nodes = 1;
+                fixed_depth = 0;                
+                fixed_time = 0;
+                max_nodes = value;
+            }
             else if (!strcmp(parameter, "infinite"))
             {
                 streamToLog << currentDateTime() << ": "
@@ -414,6 +429,8 @@ void UCI()
                 printf(" Engine received infinite. We use MAXDEPTH.");
                 max_depth = MAXDEPTH; // values are given in plies (Halbzuege)
                 fixed_depth = 1;
+                fixed_nodes = 0;
+                fixed_time = 0;
             }                
             else if (!strcmp(parameter, "wtime"))
             {

@@ -32,23 +32,23 @@ void think()
 {
 	debugDepth = 0; //DEBUG
 	moveListFlag = false; //DEBUG
-    streamToLogSearch << "\n" << "-------------" << std::endl; //DEBUG
+	streamToLogSearch << "\n" << "-------------" << std::endl; //DEBUG
 
 	int x;
 	stop_search = false;
-    setjmp(env);
-	
-	if (stop_search) 
+	setjmp(env);
+
+	if (stop_search)
 	{
 		while (ply)
 			TakeBack();
 		return;
 	}
 
-	if(fixed_time==0)
+	if (fixed_time == 0)
 	{
-		if (Attack(xside,NextBit(bit_pieces[side][K])))
-			max_time = max_time/2;
+		if (Attack(xside, NextBit(bit_pieces[side][K])))
+			max_time = max_time / 2;
 	}
 
 	start_time = GetTime();
@@ -56,46 +56,56 @@ void think()
 
 	ply = 0;
 	nodes = 0;
-   
+
 	NewPosition();
-	memset(history, 0, sizeof(history));	
+	memset(history, 0, sizeof(history));
 	printf("ply    score         time\t\t\t nodes\t principal variation\n");
-	for (int i = 1; i <= max_depth; ++i) 
+	for (int i = 1; i <= max_depth; ++i)
 	{
 		currentmax = i;
-		if(fixed_depth==0 && max_depth>1)
-		if(fixed_time==1)
+		if (fixed_depth == 0 && max_depth > 1)
 		{
-			if(GetTime() >= start_time + max_time)
+			if (fixed_nodes == 1)
+			{
+				if (nodes > max_nodes)
+				{
+					stop_search = true;
+					return;
+				}
+			}
+			else if (fixed_time == 1)
+			{
+				if (GetTime() >= start_time + max_time)
+				{
+					stop_search = true;
+					return;
+				}
+			}
+			else if (GetTime() >= start_time + max_time / 4)
 			{
 				stop_search = true;
-   				return;
+				return;
 			}
-		}
-		else if(GetTime() >= start_time + max_time/4)
-		{
-			stop_search = true;
- 			return;
-		}
+		}						
 
 		x = Search(-10000, 10000, i);
-		
+
 		// output for UCI
 		if (LookUp(side))
 		{
-			std::cout << "info depth " << i << " score cp " << x 
-				      << " nodes " << nodes << " pv";
+			std::cout << "info depth " << i << " score cp " << x
+				<< " nodes " << nodes << " pv";
 			DisplayPV(i);
 			std::cout << std::endl;
 		}
 
-		printf("%0*d\t%*d\t  %*llu\t  %*d\t", 3, i, 
-			                               4, x, 
-			                               7, (GetTime() - start_time) / 10, 
-			                              20, nodes);
+		printf("%0*d\t%*d\t  %*llu\t  %*d\t", 3, i,
+			4, x,
+			7, (GetTime() - start_time) / 10,
+			20, nodes);
 
-		if(LookUp(side))
-		{			
+		if (LookUp(side))
+		{
 			DisplayPV(i);
 		}
 		else
