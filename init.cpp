@@ -35,7 +35,7 @@ char piece_char[6] =
 //
 int piece_value[6] = 
 {
-	100, 300, 325, 500, 900, 10000
+	PAWN_VALUE, KNIGHT_VALUE, BISHOP_VALUE, ROOK_VALUE, QUEEN_VALUE, KING_VALUE
 };
 
 int init_color[64] = 
@@ -134,16 +134,30 @@ int pawn_score[64] =
 	  0,   0,   0,   0,   0,   0,   0,   0
 };
 
+/* // Original version
 int knight_score[64] = 
 {
-	-30, -20, -10,  -8,  -8, -10, -20, -30,
-	-16, -6,   -2,   0,   0,   -2, -6, -16,
-	-8,   -2,   4,   6,   6,   4,   -2, -8,
-	-5,   0,   6,   8,   8,   6,   0, -5,
-	-5,   0,   6,   8,   8,   6,   0, -5,
-	-10,   -2,   4,   6,   6,   4,   -2, -10,
-	-20, -10,   -2,   0,   0,   -2, -10, -20,
-	-150, -20, -10, -5, -5, -10, -20, -150
+	 -30,  -20, -10,  -8,  -8, -10, -20,  -30,
+	 -16,   -6,  -2,   0,   0,  -2,  -6,  -16,
+	  -8,   -2,   4,   6,   6,   4,  -2,   -8,
+	  -5,    0,   6,   8,   8,   6,   0,   -5,
+	  -5,    0,   6,   8,   8,   6,   0,   -5,
+	 -10,   -2,   4,   6,   6,   4,  -2,  -10,
+	 -20,  -10,  -2,   0,   0,  -2, -10,  -20,
+	-150,  -20, -10,  -5,  -5, -10, -20, -150
+};
+*/
+
+int knight_score[64] =
+{
+	 -30,  -20, -10,  -8,  -8, -10, -20,  -30,
+	 -16,   -6,  -2,   0,   0,  -2,  -6,  -16,
+	  -8,   -2,   4,   6,   6,   4,  -2,   -8,
+	  -5,    0,   6,   8,   8,   6,   0,   -5,
+	  -5,    0,   6,   8,   8,   6,   0,   -5,
+	 -10,   -2,   4,   6,   6,   4,  -2,  -10,
+	 -20,  -10,  -2,   0,   0,  -2, -10,  -20,
+	-150,  -10, -10,  -5,  -5, -10, -10, -150
 };
 
 int bishop_score[64] = 
@@ -251,18 +265,18 @@ void SetTables()
 
 for(int x=0;x<64;x++)
 {
-    square_score[0][P][x] = pawn_score[x] + 100;
-    square_score[0][N][x] = knight_score[x] + 300;
-    square_score[0][B][x] = bishop_score[x] + 300;
-	square_score[0][R][x] = rook_score[x] + 500;
-    square_score[0][Q][x] = queen_score[x] + 900;
+    square_score[0][P][x] = pawn_score[x]   + PAWN_VALUE;
+    square_score[0][N][x] = knight_score[x] + KNIGHT_VALUE;
+    square_score[0][B][x] = bishop_score[x] + BISHOP_VALUE;
+	square_score[0][R][x] = rook_score[x]   + ROOK_VALUE;
+    square_score[0][Q][x] = queen_score[x]  + QUEEN_VALUE;
     square_score[0][K][x] = king_score[x];
 
-    square_score[1][P][x] = pawn_score[Flip[x]] + 100;
-    square_score[1][N][x] = knight_score[Flip[x]] + 300;
-    square_score[1][B][x] = bishop_score[Flip[x]] + 300;
-	square_score[1][R][x] = rook_score[Flip[x]] + 500;
-    square_score[1][Q][x] = queen_score[Flip[x]] + 900;
+    square_score[1][P][x] = pawn_score[Flip[x]]   + PAWN_VALUE;
+    square_score[1][N][x] = knight_score[Flip[x]] + KNIGHT_VALUE;
+    square_score[1][B][x] = bishop_score[Flip[x]] + BISHOP_VALUE;
+	square_score[1][R][x] = rook_score[Flip[x]]   + ROOK_VALUE;
+    square_score[1][Q][x] = queen_score[Flip[x]]  + QUEEN_VALUE;
 	square_score[1][K][x] = king_score[Flip[x]];
 
 	king_endgame[0][x] = king_endgame_score[x] - square_score[0][K][x];

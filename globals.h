@@ -12,8 +12,14 @@
 void ShowAll(int ply);//
 
 //// Eigene Definitionen
-#define MAXDEPTH 14 
+#define MAXDEPTH 15 
 #define BISHOPSPAIR 25 // Additional score is +0.25 for the bishop's pair
+#define PAWN_VALUE 100
+#define KNIGHT_VALUE 300
+#define BISHOP_VALUE 325
+#define ROOK_VALUE 500
+#define QUEEN_VALUE 900
+#define KING_VALUE 10000
 //// Eigene Definitionen
 
 #define U64 unsigned __int64 
