@@ -18,6 +18,7 @@ int move_start,move_dest;
 int LowestAttacker(const int s, const int xs,const int sq);
 
 static int debugDepth = 0; //DEBUG
+static bool moveListFlag = false; //Debug
 std::fstream streamToLogSearch("logSearch.txt", std::ios::out); //DEBUG
 
 /*
@@ -30,7 +31,8 @@ After each iteration the principal variation is then displayed.
 void think()
 {
 	debugDepth = 0; //DEBUG
-	streamToLogSearch << "\n" << "-------------" << std::endl; //DEBUG
+	moveListFlag = false; //DEBUG
+    streamToLogSearch << "\n" << "-------------" << std::endl; //DEBUG
 
 	int x;
 	stop_search = false;
@@ -236,16 +238,29 @@ int Search(int alpha, int beta, int depth)
 		return 0;
 	AddHash(side, bestmove);
 
-	//DEBUG
 	
+	//DEBUG	///////////////////////////////////////////////	
 	if (depth > debugDepth)
 	{
+		if (!moveListFlag)
+		{
+			for (int i = 0;; i++)
+			{
+				if (move_list[i].start == 0 || move_list[i].dest == 0)
+					break;
+				streamToLogSearch << "move_list(" << i + 1 << "): " << "\t"
+					<< MoveString(move_list[i].start, move_list[i].dest, move_list[i].promote) << std::endl;
+			}
+			streamToLogSearch << std::endl;
+			moveListFlag = true;
+		}
+		
 		debugDepth++;
 		streamToLogSearch << "depth " << std::setw(3) << depth << "\t"
 						  << MoveString(bestmove.start, bestmove.dest, bestmove.promote)
-				<< "\t" << " score " << std::setw(9) << bestmove.score << std::endl;
+				          << "\t" << " score " << std::setw(9) << bestmove.score << std::endl;
 	}
-	//DEBUG
+	//DEBUG	///////////////////////////////////////////////
 
 	return alpha;
 }

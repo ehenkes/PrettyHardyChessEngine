@@ -78,16 +78,6 @@ int main()
     std::cout << "Pretty Hardy Chess Engine\n" << ("Version 0.2\n") << std::endl;
 
     char s[256];
-    //char sFen[256];  // wird nirgends verwendet
-    //char sText[256]; // wird nirgends verwendet
-
-    //int m;           // wird nirgends verwendet
-    //int turns = 0;   // wird nirgends verwendet
-    //int t;           // wird nirgends verwendet
-    //int lookup;      // wird nirgends verwendet
-
-    //double nps;      // wird nirgends verwendet
-
     fixed_time = 0;
 
     SetUp(); // setzt z.B. maximale Halbzugtiefe
@@ -802,6 +792,7 @@ void CloseDiagram()
     diagram_file = NULL;
 }
 
+/*
 void ShowHelp()
 {
     printf("d - Displays the board.\n");
@@ -820,6 +811,7 @@ void ShowHelp()
     printf("undo - Takes back the last move.\n");
     printf("xboard - Starts xboard.\n");
 }
+*/
 
 void SetUp()
 {
