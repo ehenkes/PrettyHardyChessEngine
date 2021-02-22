@@ -250,25 +250,33 @@ int Search(int alpha, int beta, int depth)
 
 	
 	//DEBUG	///////////////////////////////////////////////	
+	//Alle Züge (an dieser Stelle auch noch illegale!!!) eines Halbzuges werden in die Log-Datei "logSearch.txt" ausgegeben:
 	if (depth > debugDepth)
 	{
 		if (!moveListFlag)
 		{
-			for (int i = 0;; i++)
-			{
-				if (move_list[i].start == 0 || move_list[i].dest == 0)
-					break;
+			/*
+			The move list for ply 1 starts at 0 and ends just before first_move[1].
+			The move list for ply 2 starts at first_move[1] and ends just before first_move[2].
+			The move list for ply 3 starts at first_move[2] and ends just before first_move[3]. etc. 
+			So the move list for any ply is between first_move[ply] and first_move[ply + 1].
+			Jordan, FM Bill. How to Write a Bitboard Chess Engine: How Chess Programs Work
+			*/
+
+			for (int i = first_move[ply]; i < first_move[ply+1]; ++i)
+			{									
 				streamToLogSearch << "move_list(" << i + 1 << "): " << "\t"
-					<< MoveString(move_list[i].start, move_list[i].dest, move_list[i].promote) << std::endl;
+						          << MoveString(move_list[i].start, move_list[i].dest, move_list[i].promote) 
+					              << std::endl;
+				moveListFlag = true;
 			}
 			streamToLogSearch << std::endl;
-			moveListFlag = true;
 		}
 		
 		debugDepth++;
 		streamToLogSearch << "depth " << std::setw(3) << depth << "\t"
 						  << MoveString(bestmove.start, bestmove.dest, bestmove.promote)
-				          << "\t" << " score " << std::setw(9) << bestmove.score << std::endl;
+				          << "\t" << " score " << std::setw(9) << bestmove.score << std::endl;		
 	}
 	//DEBUG	///////////////////////////////////////////////
 
