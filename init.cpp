@@ -33,10 +33,7 @@ char piece_char[6] =
 // Werte für Figuren, Reihenfolge 'P', 'N', 'B', 'R', 'Q', 'K' 
 // Wert für Läufer von 300 versuchsweise auf 325 geändert am 19.02.2021
 //
-int piece_value[6] = 
-{
-	PAWN_VALUE, KNIGHT_VALUE, BISHOP_VALUE, ROOK_VALUE, QUEEN_VALUE, KING_VALUE
-};
+int piece_value[6] = {PAWN_VALUE, KNIGHT_VALUE, BISHOP_VALUE, ROOK_VALUE, QUEEN_VALUE, KING_VALUE};
 
 int init_color[64] = 
 {
@@ -174,12 +171,12 @@ int bishop_score[64] =
 
 int rook_score[64] = 
 {
-	4, 4,  4,  6, 6,  4, 4, 4,
-	0, 0,  0,  0, 0,  0, 0, 0,
-	0, 0,  0,  0, 0,  0, 0, 0,
-	0, 0,  0,  0, 0,  0, 0, 0,
-	0, 0,  0,  0, 0,  0, 0, 0,
-	0, 0,  0,  0, 0,  0, 0, 0,
+	 4,  4,  4,  6,  6,  4,  4,  4,
+	 0,  0,  0,  0,  0,  0,  0,  0,
+	 0,  0,  0,  0,  0,  0,  0,  0,
+	 0,  0,  0,  0,  0,  0,  0,  0,
+	 0,  0,  0,  0,  0,  0,  0,  0,
+	 0,  0,  0,  0,  0,  0,  0,  0,
 	20, 20, 20, 20, 20, 20, 20, 20,
 	10, 10, 10, 10, 10, 10, 10, 10
 };
@@ -210,14 +207,14 @@ int king_score[64] =
 
 int king_endgame_score[64] = 
 {
-	  0,   8,  16,  18,  18,  16,  8,   0,
-	  8,  16,  24,  32,  32,  24,  16,  8,
+	  0,   8,  16,  18,  18,  16,   8,   0,
+	  8,  16,  24,  32,  32,  24,  16,   8,
 	 16,  24,  32,  40,  40,  32,  24,  16,
 	 25,  32,  40,  48,  48,  40,  32,  25,
 	 25,  32,  40,  48,  48,  40,  32,  25,
 	 16,  24,  32,  40,  40,  32,  24,  16,
-	 8,  16,  24,  32,  32,  24,  16,  8,
-	  0,  8,  16,  18,  18,  16,  8,   0
+	  8,  16,  24,  32,  32,  24,  16,   8,
+	  0,   8,  16,  18,  18,  16,   8,   0
 };
 
 int passed_score[64] = 
@@ -249,16 +246,14 @@ int castle_mask[64] = {//reversed
 	15, 15, 15, 15, 15, 15, 15, 15,
 	15, 15, 15, 15, 15, 15, 15, 15,
 	15, 15, 15, 15, 15, 15, 15, 15,
-	7, 15, 15, 15,  3, 15, 15, 11
+	 7, 15, 15, 15,  3, 15, 15, 11
 };
 
 int rank[2][64];
 /*
-
 SetTables fills the square_score tables, king_endgame tables and passed tables with the individual piece tables.
 The value of each piece is added to the score for each square.
 The board is flipped for the Black scores.
-
 */
 void SetTables()
 {
@@ -287,9 +282,7 @@ for(int x=0;x<64;x++)
 
 }
 /*
-
 Sets up variables for a new game.
-
 */
 void InitBoard()
 {
@@ -307,7 +300,7 @@ void InitBoard()
 		if(init_board[x]<6)
 			AddPiece(init_color[x],init_board[x],x);
 	}
-	side = 0;
+	side = 0; 
 	xside = 1;
 	fifty = 0;
 	castle = 15;
@@ -317,9 +310,7 @@ void InitBoard()
 	turn = 0;
 }
 /*
-
 NewPosition gets the board ready before the computer starts to think.
-
 */
 void NewPosition()
 {
@@ -340,9 +331,7 @@ void NewPosition()
     currentlock = GetLock();
 }
 /*
-
 Alg displays a move.
-
 */
 void Alg(int a, int b)
 {
@@ -350,11 +339,9 @@ void Alg(int a, int b)
 	Algebraic(b);
 }
 /*
-
 Algebraic displays a square.
 e.g. 3 becomes col[3] + 96 which is ascii character 'd' and row[3]+1 which is '1'.
 Passing 3 returns 'd1'.
-
 */
 void Algebraic(int a)
 {
@@ -363,116 +350,108 @@ void Algebraic(int a)
 	c[0] =  96+1+col[a];
 	printf("%s%d",c,row[a]+1);
 }
-/*
 
+/*
 SetMoves creates the lookup tables for Knights, line-pieces and Kings.
 These will later be used to generate moves, captures and attacks.
-
 */
 void SetMoves()
 {
-	int k=0;
+	int k = 0;
 	int y;
 	nodes = 1;
 
-for(int x=0;x<64;x++)
-{
-	k = 0;
-	if(row[x]<6 && col[x]<7) 
-		knight_moves[x][k++] =  x+17;
-	if(row[x]<7 && col[x]<6) 
-		knight_moves[x][k++] =  x+10;
-	if(row[x]<6 && col[x]>0) 
-		knight_moves[x][k++] =  x+15;
-	if(row[x]<7 && col[x]>1) 
-		knight_moves[x][k++] =  x+6;
-	if(row[x]>1 && col[x]<7) 
-		knight_moves[x][k++] =  x-15;
-	if(row[x]>0 && col[x]<6) 
-		knight_moves[x][k++] =  x-6;
-	if(row[x]>1 && col[x]>0) 
-		knight_moves[x][k++] =  x-17;
-	if(row[x]>0 && col[x]>1) 
-		knight_moves[x][k++] =  x-10;
-	knight_moves[x][k] = -1;
-}
-for(int x=0;x<64;x++)
-{
-	k = 0;
-	while(knight_moves[x][k] > -1)
+	for (int x = 0; x < 64; x++)
 	{
-		bit_knightmoves[x] |= mask[knight_moves[x][k]]; 
-		k++;
+		k = 0;
+		if (row[x] < 6 && col[x] < 7) {knight_moves[x][k++] = x + 17;}
+		if (row[x] < 7 && col[x] < 6) {knight_moves[x][k++] = x + 10;}
+		if (row[x] < 6 && col[x] > 0) {knight_moves[x][k++] = x + 15;}
+		if (row[x] < 7 && col[x] > 1) {knight_moves[x][k++] = x +  6;}
+		if (row[x] > 1 && col[x] < 7) {knight_moves[x][k++] = x - 15;}
+		if (row[x] > 0 && col[x] < 6) {knight_moves[x][k++] = x -  6;}
+		if (row[x] > 1 && col[x] > 0) {knight_moves[x][k++] = x - 17;}
+		if (row[x] > 0 && col[x] > 1) {knight_moves[x][k++] = x - 10;}
+		knight_moves[x][k] = -1;
 	}
-}
-for(int x=0;x<64;x++)
-{
-	k = 0;
 
-	for(int z=0;z<8;z++)
+	for (int x = 0; x < 64; x++)
 	{
-		qrb_moves[x][z] = -1;
+		k = 0;
+		while (knight_moves[x][k] > -1)
+		{
+			bit_knightmoves[x] |= mask[knight_moves[x][k]];
+			k++;
+		}
 	}
-		
-	if(col[x]>0) qrb_moves[x][WEST]=x-1;
-	if(col[x]<7) qrb_moves[x][EAST]=x+1;
-	if(row[x]>0) qrb_moves[x][SOUTH]=x-8;
-	if(row[x]<7) qrb_moves[x][NORTH]=x+8;
-	if(col[x]<7 && row[x]<7) qrb_moves[x][NE]=x+9;
-	if(col[x]>0 && row[x]<7) qrb_moves[x][NW]=x+7;
-	if(col[x]>0 && row[x]>0) qrb_moves[x][SW]=x-9;
-	if(col[x]<7 && row[x]>0) qrb_moves[x][SE]=x-7;
 
-    y=0;
-	if(col[x]>0) 
-		king_moves[x][y++]=x-1;
-	if(col[x]<7) 
-		king_moves[x][y++]=x+1;
-	if(row[x]>0) 
-		king_moves[x][y++]=x-8;
-	if(row[x]<7) 
-		king_moves[x][y++]=x+8;
-	if(col[x]<7 && row[x]<7) 
-		king_moves[x][y++]=x+9;
-	if(col[x]>0 && row[x]<7) 
-		king_moves[x][y++]=x+7;
-	if(col[x]>0 && row[x]>0) 
-		king_moves[x][y++]=x-9;
-	if(col[x]<7 && row[x]>0) 
-		king_moves[x][y++]=x-7;
-	king_moves[x][y] = -1;
-}
-for(int x=0;x<64;x++)
-{
-	bit_bishopmoves[x] = 0;
-	bit_rookmoves[x] = 0;
-	bit_queenmoves[x] = 0;
+	for (int x = 0; x < 64; x++)
+	{
+		k = 0;
 
-	for(int y=0;y<64;y++)
-	{
-		if(x==y)
-			continue;
-		if(nwdiag[x]==nwdiag[y] || nediag[x]==nediag[y])
-			bit_bishopmoves[x] |= mask[y];
-		if(row[x]==row[y] || col[x]==col[y])
-			bit_rookmoves[x] |= mask[y];
-		if(nwdiag[x]==nwdiag[y] || nediag[x]==nediag[y] || row[x]==row[y] || col[x]==col[y])
-			bit_queenmoves[x] |= mask[y];
+		for (int z = 0; z < 8; z++)
+		{
+			qrb_moves[x][z] = -1;
+		}
+
+		if (col[x] > 0) qrb_moves[x][WEST] = x - 1;
+		if (col[x] < 7) qrb_moves[x][EAST] = x + 1;
+		if (row[x] > 0) qrb_moves[x][SOUTH] = x - 8;
+		if (row[x] < 7) qrb_moves[x][NORTH] = x + 8;
+		if (col[x] < 7 && row[x] < 7) qrb_moves[x][NE] = x + 9;
+		if (col[x] > 0 && row[x] < 7) qrb_moves[x][NW] = x + 7;
+		if (col[x] > 0 && row[x] > 0) qrb_moves[x][SW] = x - 9;
+		if (col[x] < 7 && row[x] > 0) qrb_moves[x][SE] = x - 7;
+
+		y = 0;
+		if (col[x] > 0) {king_moves[x][y++] = x - 1;}
+		if (col[x] < 7) {king_moves[x][y++] = x + 1;}
+		if (row[x] > 0) {king_moves[x][y++] = x - 8;}
+		if (row[x] < 7) {king_moves[x][y++] = x + 8;}
+		if (col[x] < 7 && row[x] < 7) {king_moves[x][y++] = x + 9;}
+		if (col[x] > 0 && row[x] < 7) {king_moves[x][y++] = x + 7;}
+		if (col[x] > 0 && row[x] > 0) {king_moves[x][y++] = x - 9;}
+		if (col[x] < 7 && row[x] > 0) {king_moves[x][y++] = x - 7;}
+		king_moves[x][y] = -1; 
 	}
-}
-for(int x=0;x<64;x++)
-{
-	k = 0;
-	while(king_moves[x][k] > -1)
+
+	for (int x = 0; x < 64; x++)
 	{
-		bit_kingmoves[x] |= mask[king_moves[x][k]]; 
-		k++;
+		bit_bishopmoves[x] = 0;
+		bit_rookmoves[x]   = 0;
+		bit_queenmoves[x]  = 0;
+
+		for (int y = 0; y < 64; y++)
+		{
+			if (x == y)
+				continue;
+
+			if (nwdiag[x] == nwdiag[y] || nediag[x] == nediag[y])
+				bit_bishopmoves[x] |= mask[y];
+
+			if (row[x] == row[y] || col[x] == col[y])
+				bit_rookmoves[x] |= mask[y];
+
+			if (nwdiag[x] == nwdiag[y] || nediag[x] == nediag[y] || row[x] == row[y] || col[x] == col[y])
+				bit_queenmoves[x] |= mask[y];
+		}
 	}
+	
+	for (int x = 0; x < 64; x++)
+	{
+		k = 0;
+		while (king_moves[x][k] > -1)
+		{
+			bit_kingmoves[x] |= mask[king_moves[x][k]];
+			k++;
+		}
+	}
+
+	nodes = 0;
 }
 
-nodes = 0;
-}
 /*dont need below here*/
+/*
 int done[100];
 int GetBest(int ply);//
 void ShowAll(int ply)
@@ -546,3 +525,4 @@ int GetBest(int ply)
 	
 	return first_move[ply]+best;
 }
+*/
