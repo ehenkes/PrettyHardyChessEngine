@@ -1,4 +1,6 @@
-#include <stdlib.h>
+#include <cstdlib>
+#include <bit>
+#include <bitset>
 #include "globals.h"
 
 const BITBOARD debruijn64 = 0x07EDD5E59A4E28C2;
@@ -359,7 +361,9 @@ int NextBit(BITBOARD bb)
 }
 //*/
 //*
-int NextBit(BITBOARD bb)//folded - used for ages
+//source: https://www.chessprogramming.org/Matt_Taylor
+/*
+int NextBit(BITBOARD bb)//folded - used for ages 
 {
 	unsigned int folded;
 	//assert (bb != 0);
@@ -367,6 +371,16 @@ int NextBit(BITBOARD bb)//folded - used for ages
 	folded = (int)bb ^ (bb >> 32);
 	return lsb_64_table[folded * 0x78291ACF >> 26];
 }
+*/
+
+//source: https://www.chessprogramming.org/BitScan#Index_of_LS1B_by_Popcount
+//Verbesserung: https://www.c-plusplus.net/forum/topic/352165/bitscanforward-fehler-c4146/3 
+int NextBit(BITBOARD bb)
+{
+	//assert(bb != 0);
+	return (int)__popcnt64((bb & (0u - bb)) - 1); //Umwandlung in int ok?
+}
+
 //*/
 int NextBit2(BITBOARD bb)//number 2  crashed
 {
