@@ -248,20 +248,19 @@ int Search(int alpha, int beta, int depth)
 		return 0;
 	AddHash(side, bestmove);
 
-	
+	/*
 	//DEBUG	///////////////////////////////////////////////	
 	//Alle Züge (an dieser Stelle auch noch illegale!!!) eines Halbzuges werden in die Log-Datei "logSearch.txt" ausgegeben:
 	if (depth > debugDepth)
 	{
 		if (!moveListFlag)
-		{
-			/*
-			The move list for ply 1 starts at 0 and ends just before first_move[1].
-			The move list for ply 2 starts at first_move[1] and ends just before first_move[2].
-			The move list for ply 3 starts at first_move[2] and ends just before first_move[3]. etc. 
-			So the move list for any ply is between first_move[ply] and first_move[ply + 1].
-			Jordan, FM Bill. How to Write a Bitboard Chess Engine: How Chess Programs Work
-			*/
+		{			
+			//The move list for ply 1 starts at 0 and ends just before first_move[1].
+			//The move list for ply 2 starts at first_move[1] and ends just before first_move[2].
+			//The move list for ply 3 starts at first_move[2] and ends just before first_move[3]. etc. 
+			//So the move list for any ply is between first_move[ply] and first_move[ply + 1].
+			//Jordan, FM Bill. How to Write a Bitboard Chess Engine: How Chess Programs Work
+			
 
 			bool illegalFlag = false;
 			int savedPly = ply;
@@ -270,7 +269,29 @@ int Search(int alpha, int beta, int depth)
 			int savedXSide = xside;
 			int savedFifty = fifty;
 
-			for (int i = first_move[ply]; i < first_move[ply+1]; ++i)
+			std::string moveStr = "";
+			int j = 0;
+			//Die möglichen Züge (legal+illegal) beginnen ab first_move[0] == 0 und enden eins vor first_move[1]
+			streamToLogSearch << first_move[0] << " " << first_move[1] << " ply: " << ply << std::endl;
+			for (int i = 0;; i++)
+			{				
+				moveStr = MoveString(move_list[i].start, move_list[i].dest, move_list[i].promote);
+				if (moveStr != "a1a1")
+				{
+					j++;
+					streamToLogSearch << moveStr << " ";
+					if ((j % first_move[1]) == 0)
+					{
+						streamToLogSearch << "\n";
+						j = 0;
+					}						
+				}					
+				else
+					break;				
+			}
+			streamToLogSearch << "-------------------------" << std::endl;
+
+			for (int i = first_move[ply]; i < first_move[ply+1]; ++i) // leider kann man hier nicht auf 0 und 1 setzen
 			{
 				if (MakeMove(move_list[i].start, move_list[i].dest))
 				{
@@ -310,6 +331,7 @@ int Search(int alpha, int beta, int depth)
 				          << "\t" << " score " << std::setw(9) << bestmove.score << std::endl;		
 	}
 	//DEBUG	///////////////////////////////////////////////
+	*/
 
 	return alpha;
 }
