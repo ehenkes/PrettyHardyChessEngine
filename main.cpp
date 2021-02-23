@@ -265,18 +265,18 @@ void UCI()
 
     std::fstream streamToLog;
     streamToLog.open("log.txt", std::ios::out);
-
+    
     while (gameIsRunning)
-    {
+    {        
         fflush(stdout);
 
         if (!optionalCommand) 
         {
             std::cin >> command;
         }
-        else 
+        else
         {
-            optionalCommand ^= 1;
+        optionalCommand ^= 1;
         }
 
         streamToLog << currentDateTime() << ": " << command << std::endl;
@@ -311,15 +311,16 @@ void UCI()
                 std::cin >> parameter;
                 streamToLog << "\t" << parameter << std::endl;
 
-                if (strcmp(parameter, "moves")) 
+                if (strcmp(parameter, "moves"))
                 {
                     strcpy(command, parameter);
-                    computer_side = White;
+                    computer_side = White; // warum ist das notwendig???
                     optionalCommand = true;
                     continue;
                 }
                 else {
-                    if (!fgets(line, 2048, stdin)) {
+                    if (!fgets(line, 2048, stdin)) 
+                    {
                         gameIsRunning = false;
                         break;
                     }
@@ -369,14 +370,33 @@ void UCI()
             if (!strcmp(parameter, "fen"))
             {
                 std::string fen, input;
+                std::string str2("moves ");
                 getline(std::cin, input);
-                fen = input.substr(1, fen.length() - 1); // vorne wird ein space eingelesen
+                std::size_t pos = input.find(str2);
+                std::string str3 = "";
+
+                if (pos != std::string::npos)
+                { 
+                    str3 = input.substr(pos);
+                    fen = input.substr(1, input.length() - str3.length() - 1); // vorne wird ein space eingelesen 
+                }
+                else
+                {
+                    fen = input.substr(1, input.length() - 1); // vorne wird ein space eingelesen 
+                }
+                
+                fen = input.substr(1, input.length() - str3.length() - 1); // vorne wird ein space eingelesen 
                 streamToLog << "\t" << fen << std::endl;
 
                 // fen umsetzen in Position, Rochade-Optionen, Seite am Zug ...
                 // https://de.wikipedia.org/wiki/Forsyth-Edwards-Notation#:~:text=Die%20Forsyth%2DEdwards%2DNotation%20(,Jahrhundert%20popul%C3%A4r.
 
                 ParseFEN(fen.c_str()); 
+                streamToLog << "\t" << str3 << std::endl;
+                if (str3 != "")
+                {
+                    strcpy(parameter, str3.c_str());
+                }                
             }            
 
             continue;
