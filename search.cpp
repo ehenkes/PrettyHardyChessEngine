@@ -263,14 +263,45 @@ int Search(int alpha, int beta, int depth)
 			Jordan, FM Bill. How to Write a Bitboard Chess Engine: How Chess Programs Work
 			*/
 
+			bool illegalFlag = false;
+			int savedPly = ply;
+			int savedHPly = hply;
+			int savedSide = side;
+			int savedXSide = xside;
+			int savedFifty = fifty;
+
 			for (int i = first_move[ply]; i < first_move[ply+1]; ++i)
-			{									
-				streamToLogSearch << "move_list(" << i + 1 << "): " << "\t"
+			{
+				if (MakeMove(move_list[i].start, move_list[i].dest))
+				{
+					streamToLogSearch << "legal(" << i + 1 << "): " << "\t"
+						<< MoveString(move_list[i].start, move_list[i].dest, move_list[i].promote)
+						<< std::endl;
+					
+					TakeBack();
+				}
+				else
+				{
+					streamToLogSearch << ">> illegal(" << i + 1 << "): " << "\t"
 						          << MoveString(move_list[i].start, move_list[i].dest, move_list[i].promote) 
-					              << std::endl;
+					              << std::endl;	
+					
+					illegalFlag = true;					
+				}
 				moveListFlag = true;
 			}
 			streamToLogSearch << std::endl;
+			
+			if (illegalFlag) // ToDo: Ausgaben legale/illegale Züge aus move_list nach erstem illegalem Zug noch nicht ok! 
+				             // Aber die Partie läuft weiter.
+			{
+				ply   = savedPly;
+				hply  = savedHPly;
+				side  = savedSide;
+				xside = savedXSide;
+				fifty = savedFifty;
+				illegalFlag = false;
+			}			
 		}
 		
 		debugDepth++;

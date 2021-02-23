@@ -61,93 +61,91 @@ If a pawn moves to the last rank then its promoted. The pawn is removed and a qu
 If the move leaves the King in check (for example, if a pinned piece moved), then the move is taken back.
 
 */
-int MakeMove(const int start,const int dest)
-{	
-if (abs(start - dest) ==2 && board[start] == K)
+int MakeMove(const int start, const int dest)
 {
-	if (Attack(xside,start)) 
-			return false;
-	if(dest==G1)
+	if (abs(start - dest) == 2 && board[start] == K)
 	{
-		if (Attack(xside,F1)) 
+		if (Attack(xside, start))
 			return false;
-		UpdatePiece(side,R,H1,F1);
+		if (dest == G1)
+		{
+			if (Attack(xside, F1))
+				return false;
+			UpdatePiece(side, R, H1, F1);
+		}
+		else if (dest == C1)
+		{
+			if (Attack(xside, D1))
+				return false;
+			UpdatePiece(side, R, A1, D1);
+		}
+		else if (dest == G8)
+		{
+			if (Attack(xside, F8))
+				return false;
+			UpdatePiece(side, R, H8, F8);
+		}
+		else if (dest == C8)
+		{
+			if (Attack(xside, D8))
+				return false;
+			UpdatePiece(side, R, A8, D8);
+		}
 	}
-	else if(dest==C1)
+
+	g = &game_list[hply];
+	g->start = start;
+	g->dest = dest;
+	g->capture = board[dest];
+	g->castle = castle;
+	g->fifty = fifty;
+	g->hash = currentkey;
+	g->lock = currentlock;
+	g->castle = castle;
+	castle &= castle_mask[start] & castle_mask[dest];
+
+	ply++;
+	hply++;
+	fifty++;
+
+	if (board[start] == P)
 	{
-		if (Attack(xside,D1)) 
-			return false;
-		UpdatePiece(side,R,A1,D1);
+		fifty = 0;
+		if (board[dest] == EMPTY && col[start] != col[dest])
+		{
+			RemovePiece(xside, P, dest + ReverseSquare[side]);
+		}
 	}
-	else if(dest==G8)
+
+	if (board[dest] < 6)
 	{
-		if (Attack(xside,F8)) 
-			return false;
-		UpdatePiece(side,R,H8,F8);
+		fifty = 0;
+		RemovePiece(xside, board[dest], dest);
 	}
-	else if(dest==C8)
-	{	
-		if (Attack(xside,D8)) 
-			return false;
-		UpdatePiece(side,R,A8,D8);
-	}
-}
 
-g = &game_list[hply];
-g->start = start;
-g->dest = dest;
-g->capture = board[dest];
-g->castle = castle;
-g->fifty = fifty;
-g->hash = currentkey;
-g->lock = currentlock;
-g->castle = castle;
-castle &= castle_mask[start] & castle_mask[dest];
-
-ply++;
-hply++;
-fifty++;
-
-if (board[start] == P)
-{
-	fifty = 0;
-	if (board[dest] == EMPTY && col[start] != col[dest])
+	if (board[start] == P && (row[dest] == 0 || row[dest] == 7))
 	{
-		RemovePiece(xside,P,dest + ReverseSquare[side]);
+		RemovePiece(side, P, start);
+		AddPiece(side, Q, dest);
+		g->promote = Q;
 	}
-}
+	else
+	{
+		g->promote = 0;
+		UpdatePiece(side, board[start], start, dest);
+	}
 
-if(board[dest]<6)
-{
-	fifty = 0;
-    RemovePiece(xside,board[dest],dest);
-}
-
-if (board[start]==P && (row[dest]==0 || row[dest]==7))
-{
-    RemovePiece(side,P,start);
-    AddPiece(side,Q,dest);
-	g->promote = Q;
-}
-else
-{
-	g->promote = 0;
-    UpdatePiece(side,board[start],start,dest);
-}
-
-side ^= 1;
-xside ^= 1;
-if (Attack(side,NextBit(bit_pieces[xside][K]))) 
-{
-	TakeBack();
-	return false;
-}
-return true;
+	side ^= 1;
+	xside ^= 1;
+	if (Attack(side, NextBit(bit_pieces[xside][K])))
+	{
+		TakeBack();
+		return false;
+	}
+	return true;
 }
 /*
-
 TakeBack is the opposite of MakeMove.
-
 */
 void TakeBack()
 {	
@@ -167,6 +165,7 @@ void TakeBack()
     {
         AddPiece(xside,P,dest + ReverseSquare[side]);
 	}
+
 	if(m->promote == Q)
     {
        AddPiece(side,P,start);
@@ -176,10 +175,12 @@ void TakeBack()
     {
        UpdatePiece(side,board[dest],dest,start);
     }
-    if (m->capture != EMPTY)
+    
+	if (m->capture != EMPTY)
     {
       AddPiece(xside,m->capture,dest);
     }
+	
 	if (abs(start - dest) == 2 && board[start] == K)
     {
 		if(dest==G1)
@@ -235,4 +236,3 @@ void UnMakeRecapture()
     UpdatePiece(side,board[game_list[hply].dest], game_list[hply].dest, game_list[hply].start);
 	AddPiece(xside, game_list[hply].capture, game_list[hply].dest);
 }
-
