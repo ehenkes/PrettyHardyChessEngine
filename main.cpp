@@ -559,7 +559,8 @@ void PrintResult()
 
     if (pawn_mat[0] == 0 && pawn_mat[1] == 0 && piece_mat[0] <= 300 && piece_mat[1] <= 300)
     {
-        printf("1/2-1/2 {Stalemate}\n");
+        //printf("1/2-1/2 {Stalemate}\n");
+        std::cout << "info string 1/2-1/2 {Stalemate}\n"; //UCI
 
         NewGame();
         computer_side = EMPTY;
@@ -569,35 +570,41 @@ void PrintResult()
     {
         Gen(side, xside);
         DisplayBoard();
-        printf(" end of game ");
+        //printf(" end of game ");
+        std::cout << "info string end of game\n"; //UCI
 
         if (Attack(xside, NextBit(bit_pieces[side][K])))
         {
             if (side == 0)
             {
-                printf("0-1 {Black mates}\n");
+                //printf("0-1 {Black mates}\n");
+                std::cout << "info string 0-1 {Black mates}\n"; //UCI
             }
             else
             {
-                printf("1-0 {White mates}\n");
+                //printf("1-0 {White mates}\n");
+                std::cout << "info string 1-0 {White mates}\n"; //UCI
             }
         }
         else
         {
-            printf("1/2-1/2 {Stalemate}\n");
+            //printf("1/2-1/2 {Stalemate}\n");
+            std::cout << "info string 1/2-1/2 {Stalemate}\n"; //UCI
         }
         NewGame();
         computer_side = EMPTY;
     }
     else if (reps() >= 3)
     {
-        printf("1/2-1/2 {Draw by repetition}\n");
+        //printf("1/2-1/2 {Draw by repetition}\n");
+        std::cout << "info string 1/2-1/2 {Draw by repetition}\n"; //UCI
         NewGame();
         computer_side = EMPTY;
     }
     else if (fifty >= 100)
     {
-        printf("1/2-1/2 {Draw by fifty move rule}\n");
+        //printf("1/2-1/2 {Draw by fifty move rule}\n");
+        std::cout << "info string 1/2-1/2 {Draw by fifty move rule}\n"; //UCI
         NewGame();
         computer_side = EMPTY;
     }
@@ -795,10 +802,17 @@ int ParseFEN(const char* ts)
     // printf(" diagram # %d \n", num + count);
     count++;
     if (side == 0)
+    {
         printf("White to move\n");
+        std::cout << "info string White to move\n"; //UCI
+    }
     else
+    {
         printf("Black to move\n");
-    printf(" %s \n", ts);
+        std::cout << "info string Black to move\n"; //UCI
+    }        
+    //printf(" %s \n", ts);
+    std::cout << "info string " << ts << std::endl; //UCI
     return 0;
 }
 
