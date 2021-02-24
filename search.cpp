@@ -5,20 +5,17 @@
 #include "globals.h"
 
 #define DEBUG // zur Ausgabe in ein Logfile
-//#define KORREKTUR // Versuch einer Korrektur zur Analyse der Symptome
-
-void SetHashMove();	
-void DisplayPV(int i);
 
 jmp_buf env;
 bool stop_search;
-
 int currentmax;
-
 int move_start, move_dest;
-
 int LowestAttacker(const int s, const int xs,const int sq);
 
+void SetHashMove();
+void DisplayPV(int i);
+
+#ifdef DEBUG
 static int debugDepth = 0; //DEBUG
 static bool moveListFlag = false; //DEBUG
 static int oldHply = 0; //DEBUG
@@ -27,8 +24,6 @@ std::fstream streamToLogSearch("logSearch.txt", std::ios::out); //DEBUG
 void DisplayBoardToFile(std::fstream& logfile, int flip)
 {
 	int i, c, x = 0;
-
-	logfile << " S C H A C H B R E T T: \n\n" << std::endl;
 
 	if (flip == 0)
 		logfile << "\n8 ";
@@ -98,23 +93,26 @@ void DisplayBoardToFile(std::fstream& logfile, int flip)
 	else
 		logfile << "\n\n   h g f e d c b a\n\n";
 }
+#endif
 
 /*
 
 think() iterates until the maximum depth for the move is reached or until the allotted time
-has run out.
-After each iteration the principal variation is then displayed.
+has run out. After each iteration the principal variation is then displayed.
 
 */
 void think()
 {
+#ifdef DEBUG
 	debugDepth = 0; //DEBUG
 	moveListFlag = false; //DEBUG
 	streamToLogSearch << "\n" << "-------------" << std::endl; //DEBUG
+#endif
 
 	int x;
 	stop_search = false;
-	setjmp(env);
+	setjmp(env); //If the allotted time for the move runs out, program flow jumps to this line
+				 // and restores the game position and ends the search.
 
 	if (stop_search)
 	{
@@ -123,23 +121,27 @@ void think()
 		return;
 	}
 
+	// If a fixed time for each move has not been set, 
+	// then the allotted time is halved for moves that are check evasions or likely recaptures.
 	if (fixed_time == 0)
 	{
 		if (Attack(xside, NextBit(bit_pieces[side][K])))
-			max_time = max_time / 2;
+			max_time /= 2;
 	}
 
-	start_time = GetTime();
+	start_time = GetTime(); //The starting time is stored.
 	stop_time = start_time + max_time;
 
 	ply = 0;
 	nodes = 0;
 
-	NewPosition();
-	memset(history, 0, sizeof(history));
+	NewPosition(); // NewPosition gets the board ready before the computer starts to think.
+	memset(history, 0, sizeof(history)); //History tables are cleared.
+	
 	printf("ply    score         time\t\t\t nodes\t principal variation\n");
 	for (int i = 1; i <= max_depth; ++i)
 	{
+		// It iterates until the maximum depth for the move is reached or until the allotted time has run out. 
 		currentmax = i;
 		if (fixed_depth == 0 && max_depth > 1)
 		{
@@ -166,13 +168,14 @@ void think()
 			}
 		}						
 
+		// Each iteration it calls search(). alpha is set low while beta is set high. 
+		// alpha increases while beta decreases. They move closer together.
 		x = Search(-10000, 10000, i);
 
 		// output for UCI
 		if (LookUp(side))
 		{
-			std::cout << "info depth " << i << " score cp " << x
-				<< " nodes " << nodes << " pv";
+			std::cout << "info depth " << i << " score cp " << x << " nodes " << nodes << " pv";
 			DisplayPV(i);
 			std::cout << std::endl;
 		}
@@ -194,124 +197,100 @@ void think()
 		printf("\n");
 		fflush(stdout);
 
-		if (x > 9000 || x < -9000)
+		if (x > 9000 || x < -9000) // If the score is greater than 9000 it means a forced mate has been found, 
 		{
-			break;
+			break; //in which case it stops searching.
 		}
 	}
 }
+
 /*
-
 search is the main part of the search.
-If the position is repeated we don't need to look any further.
-If depth has run out, the capture search is done.
-Every 4,000 positions approx the time is checked.
-Moves are generated.
-The moves are looped through in order of their score.
-If a move is illegal (for example, if it attempts to move a pinned piece)
-then it is skipped over.
-If the move is check, we extend by one ply. This is done by not changing depth in the call to search.
-If it has a score greater than zero, ply is one or the move number is less than 12
-a normal search is done. This is done by subtracting 1 from depth. 
-Otherwise we reduce by one ply. This is done by subtracting 2 from depth. 
-The move is taken back.
-
-If the score from search is greater than beta, a beta cutoff happens. No need to
-search any moves at this depth.
-Otherwise, if it is greater than alpha, alpha is changed. 
-
-If there were no legal moves it is either checkmate or stalemate.
-
 */
-
 int Search(int alpha, int beta, int depth)
 {
-	if (ply && reps2())
-	{
+	if (ply && reps2()) // If the position is repeated we don't need to look any further.
 		return 0;
-	}
-
-	if (depth < 1)
+		
+	if (depth < 1) // If depth has run out, the capture search is done.
 		return CaptureSearch(alpha,beta);
 
 	nodes++;
+	if ((nodes & 4095) == 0) // Every 4, 000 positions approx the time is checked.
+		CheckUp(); // checkup checks to see if the time has run out. If so, the search ends.
 	
-	if ((nodes & 4095) == 0)
-	{
-		CheckUp();
-	}
-
 	if (ply > MAX_PLY-2)
 		return Eval();
-
+	
+	// Moves are generated. The moves are looped through in order of their score.
 	move bestmove;
-
 	int bestscore = -10001;
-
 	int check = 0;
 
-	if (Attack(xside,NextBit(bit_pieces[side][K]))) 
-	{
+	if (Attack(xside,NextBit(bit_pieces[side][K]))) // Schach dem König? 
 		check = 1;
-	}
+	
 	Gen(side,xside);
 
 	if(LookUp(side))
 	  SetHashMove();
 
-	int c = 0;
-	int x;
-	int d;
+	int c = 0, x, d;
 		
 	for (int i = first_move[ply]; i < first_move[ply + 1]; ++i) 
 	{
-			Sort(i);
+		Sort(i);
 
-			if (!MakeMove(move_list[i].start,move_list[i].dest))
-			{
-				continue;
-			}
-			c++;
-	
-		if (Attack(xside,NextBit(bit_pieces[side][K]))) 
+		if (!MakeMove(move_list[i].start,move_list[i].dest)) // If a move is illegal
 		{
-			d = depth;
+			continue; // then it is skipped over.
+		}
+		c++;
+	
+		if (Attack(xside,NextBit(bit_pieces[side][K]))) // If the move is check, we extend by one ply.
+		{									// This is done by not changing depth in the call to search.
+			//d = depth;
+			d = depth - 1; // Auf normale Suche abgeändert, da dies bei der Suche nach legalen Zügen massiv stört!!!
 		}
 		else
 		{
-		    d = depth - 3;
-			if(move_list[i].score > CAPTURE_SCORE || c==1 || check==1)
-			{
-			    d = depth - 1;
+		    d = depth - 3; // <-- Gefahr??
+			if(move_list[i].score > CAPTURE_SCORE || c==1 || check==1) // If it has a score greater than zero, 
+				                                                       // ply is one or the move number is less than 12
+			{                                                          // a normal search is done. 
+			    d = depth - 1; // This is done by subtracting 1 from depth.
 			}
-			else if(move_list[i].score > 0) 
+			else if(move_list[i].score > 0) // Otherwise we reduce by one ply.
 			{
-				d = depth - 2;
+				d = depth - 2; // This is done by subtracting 2 from depth. // <-- Gefahr??
 			}
 		}
-
+				
 		x = -Search(-beta, -alpha, d);
-	
-		TakeBack();
-
+		TakeBack(); // The move is taken back.
+		
 		if(x > bestscore)
 		{
 			bestscore = x;
 			bestmove = move_list[i];
 		}
-		if (x > alpha) 
+
+		if (x > alpha) // if it is greater than alpha, alpha is changed.
 		{
+			// If the score from search is greater than beta, a beta cutoff happens.
+		    // No need to search any moves at this depth.
 			if (x >= beta)
 			{
-				if(!(mask[move_list[i].dest] & bit_all))
+				if (!(mask[move_list[i].dest] & bit_all))
 					history[move_list[i].start][move_list[i].dest] += depth;
-					AddHash(side, move_list[i]);
+				AddHash(side, move_list[i]);
 				return beta;
 			}
 		alpha = x;
 		}
 	}	
 	
+	// If there were no legal moves it is either checkmate or stalemate.
 	if (c == 0) 
 	{
 		if (Attack(xside,NextBit(bit_pieces[side][K]))) 
@@ -322,7 +301,7 @@ int Search(int alpha, int beta, int depth)
 			return 0;
 	    }
 	
-	if (fifty >= 100)
+	if (fifty >= 100) // 50-Züge-Remis-Regel
 		return 0;
 	AddHash(side, bestmove);
 
@@ -341,77 +320,38 @@ int Search(int alpha, int beta, int depth)
 			
 			bool illegalFlag = false;
 			
-#ifdef KORREKTUR
-			/// ////////////////////////////////////////////
-			/// Versuch einer Korrektur des unklaren Doppelsprungs von hply
-			/// </summary>
-			 if (hply - oldHply == 2)
-			 {
-				   int retVal = TakeBack(); 
-				   if (retVal == 1) {streamToLogSearch << "Figurenschlagen wurde rückgängig gemacht." << std::endl;}
-				   
-				   streamToLogSearch << "hply (korrigiert): " << hply 
-					   << "\nSeite: " << (!side ? "Weiß":"Schwarz") 
-					   << " Gegenseite: " << (!xside ? "Weiß" : "Schwarz") <<  std::endl;
-			 }				
-			/// ///////////////////////////////////////////
-#endif
-
-			int savedPly = ply;
-			int savedHPly = oldHply = hply;
-			int savedSide = side;
+			int savedPly   = ply;
+			int savedHPly  = hply;
+			int savedSide  = side;
 			int savedXSide = xside;
 			int savedFifty = fifty;
 
-			streamToLogSearch << "\n\n-------------------------" << std::endl;
-            streamToLogSearch << first_move[hply] << " hply: " << hply << std::endl;
+			streamToLogSearch << "hply: " << hply << std::endl;
 			std::string moveStr = "";
 			for (int i = 0; i < hply; i++)
 			{
 				moveStr = MoveString(game_list[i].start, game_list[i].dest, game_list[i].promote);
 				streamToLogSearch << moveStr << " ";
 			}
-			streamToLogSearch << std::endl;
-			
-			//Die möglichen Züge (legal+illegal) beginnen ab first_move[0] == 0 und enden eins vor first_move[1]
-			streamToLogSearch << first_move[0] << " " << first_move[1] << " ply: " << ply << std::endl;
-						
-			for (int i = 0;; i++)
-			{   
-				int j = 0;				
-				moveStr = MoveString(move_list[i].start, move_list[i].dest, move_list[i].promote);
-				if (moveStr != "a1a1")
-				{
-					j++;
-					streamToLogSearch << moveStr << " ";
-					if ((j % first_move[1]) == 0)
-					{
-						streamToLogSearch << "\n";
-						j = 0;
-					}						
-				}					
-				else
-					break;				
-			}
-			
 			streamToLogSearch << "\n\n-------------------------" << std::endl;
 
-			for (int i = first_move[ply]; i < first_move[ply+1]; ++i) // leider kann man hier nicht auf 0 und 1 setzen
+			for (int i = first_move[ply]; i < first_move[ply+1]; ++i) 
 			{
 				if (MakeMove(move_list[i].start, move_list[i].dest))
 				{
 					// legaler Zug
-					streamToLogSearch << "legal(" << i + 1 << "): " << "\t"
+					streamToLogSearch << "legal(" << std::setw(2) << i + 1 << "): " << "\t"
 						<< MoveString(move_list[i].start, move_list[i].dest, move_list[i].promote)
 						<< std::endl;
 					
 					int retVal = TakeBack(); 
-					//if (retVal == 1) {streamToLogSearch << "Figurenschlagen wurde rückgängig gemacht." << std::endl;}					
+					// if (retVal == 1) {streamToLogSearch << "Figurenschlagen wurde rückgängig gemacht." << std::endl;}
+					// als Beispiel zur Kontrolle von TakeBack()
 				}
 				else
 				{
-					// illegaler Zug
-					streamToLogSearch << ">> illegal(" << i + 1 << "): " << "\t"
+					// illegaler Zug (nicht notwendig für NN, nur zur Kontrolle)
+					streamToLogSearch << ">> illegal(" << std::setw(2) << i + 1 << "): " << "\t"
 						          << MoveString(move_list[i].start, move_list[i].dest, move_list[i].promote) 
 					              << std::endl;	
 					
@@ -421,8 +361,7 @@ int Search(int alpha, int beta, int depth)
 			}
 			streamToLogSearch << std::endl;
 			
-			if (illegalFlag) // ToDo: Ausgaben legale/illegale Züge aus move_list nach erstem illegalem Zug noch nicht ok! 
-				             // Aber die Partie läuft weiter. TakeBack() klappt hier in diesem Zweig nicht.
+			if (illegalFlag) 				             
 			{
 				ply   = savedPly;
 				hply  = savedHPly;

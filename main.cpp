@@ -77,7 +77,7 @@ const std::string currentDateTime() {
 int main()
 {
     SetBits();
-    std::cout << "Pretty Hardy Chess Engine\n" << ("Version 0.2\n") << std::endl;
+    std::cout << "Pretty Hardy Chess Engine\n" << ("Version 0.3\n") << std::endl;
 
     char s[256];
     fixed_time = 0;
