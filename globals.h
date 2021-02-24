@@ -275,7 +275,7 @@ void UpdatePiece(const int s,const int p,const int start,const int dest);
 void RemovePiece(const int s,const int p,const int sq);
 void AddPiece(const int s,const int p,const int sq);
 int MakeMove(const int,const int);
-void TakeBack();
+int TakeBack();
 int MakeRecapture(const int,const int);
 void UnMakeRecapture();
 

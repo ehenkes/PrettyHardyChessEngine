@@ -2,8 +2,9 @@
 #include <iostream>
 #include <iomanip> 
 #include <fstream>
-
 #include "globals.h"
+
+#define DEBUG // zur Ausgabe in ein Logfile
 
 void SetHashMove();	
 void DisplayPV(int i);
@@ -22,9 +23,9 @@ static bool moveListFlag = false; //Debug
 std::fstream streamToLogSearch("logSearch.txt", std::ios::out); //DEBUG
 
 void DisplayBoardToFile(std::fstream& logfile, int flip)
-{	
-	int i, c, x=0;
-	
+{
+	int i, c, x = 0;
+
 	logfile << " S C H A C H B R E T T: \n\n" << std::endl;
 
 	if (flip == 0)
@@ -35,9 +36,14 @@ void DisplayBoardToFile(std::fstream& logfile, int flip)
 	for (int j = 0; j < 64; ++j)
 	{
 		if (flip == 0)
+		{
 			i = Flip[j];
+		}
 		else
+		{
 			i = 63 - Flip[j];
+		}
+
 		c = EMPTY;
 		if (bit_units[White] & mask[i]) c = White;
 		if (bit_units[Black] & mask[i]) c = Black;
@@ -318,8 +324,8 @@ int Search(int alpha, int beta, int depth)
 		return 0;
 	AddHash(side, bestmove);
 
-	
-	//DEBUG	///////////////////////////////////////////////	
+		
+#ifdef DEBUG
 	//Alle Züge (an dieser Stelle auch noch illegale!!!) eines Halbzuges werden in die Log-Datei "logSearch.txt" ausgegeben:
 	if (depth > debugDepth)
 	{
@@ -331,7 +337,6 @@ int Search(int alpha, int beta, int depth)
 			//So the move list for any ply is between first_move[ply] and first_move[ply + 1].
 			//Jordan, FM Bill. How to Write a Bitboard Chess Engine: How Chess Programs Work
 			
-
 			bool illegalFlag = false;
 			int savedPly = ply;
 			int savedHPly = hply;
@@ -375,14 +380,19 @@ int Search(int alpha, int beta, int depth)
 			{
 				if (MakeMove(move_list[i].start, move_list[i].dest))
 				{
+					// legaler Zug
 					streamToLogSearch << "legal(" << i + 1 << "): " << "\t"
 						<< MoveString(move_list[i].start, move_list[i].dest, move_list[i].promote)
 						<< std::endl;
 					
-					TakeBack();
+					int retVal = 0;
+					retVal = TakeBack(); 
+					//if (retVal == 1) {streamToLogSearch << "Figurenschlagen wurde rückgängig gemacht." << std::endl;}
+					
 				}
 				else
 				{
+					// illegaler Zug
 					streamToLogSearch << ">> illegal(" << i + 1 << "): " << "\t"
 						          << MoveString(move_list[i].start, move_list[i].dest, move_list[i].promote) 
 					              << std::endl;	
@@ -396,15 +406,16 @@ int Search(int alpha, int beta, int depth)
 			if (illegalFlag) // ToDo: Ausgaben legale/illegale Züge aus move_list nach erstem illegalem Zug noch nicht ok! 
 				             // Aber die Partie läuft weiter. TakeBack() klappt hier in diesem Zweig nicht.
 			{
-				DisplayBoardToFile(streamToLogSearch, White);
-
-				ply = savedPly;
+				ply   = savedPly;
 				hply  = savedHPly;
 				side  = savedSide;
 				xside = savedXSide;
 				fifty = savedFifty;
+				
 				illegalFlag = false;
-			}			
+			}
+
+			DisplayBoardToFile(streamToLogSearch, White);
 		}
 		
 		debugDepth++;
@@ -412,8 +423,7 @@ int Search(int alpha, int beta, int depth)
 						  << MoveString(bestmove.start, bestmove.dest, bestmove.promote)
 				          << "\t" << " score " << std::setw(9) << bestmove.score << std::endl;		
 	}
-	//DEBUG	///////////////////////////////////////////////
-	
+#endif
 
 	return alpha;
 }

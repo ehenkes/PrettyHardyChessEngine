@@ -257,7 +257,7 @@ void UCI()
     fixed_time = 0;
 
     std::cout << "id name PrettyHardyChessmaster Feb 2021\n"
-        << "id author E.Henkes, P.Puntschart (inspired by code of Bill Jordan)\n"
+        << "id author Erhard Henkes, Paul Puntschart (inspired by code of Bill Jordan)\n"
         << "option name UCI_Chess960 0\n"
         << "option name Threads 1\n"
         << "option name Hash type spin default 128 min 16 max 2048\n"
