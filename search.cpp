@@ -5,6 +5,7 @@
 #include "globals.h"
 
 #define DEBUG // zur Ausgabe in ein Logfile
+//#define KORREKTUR // Versuch einer Korrektur zur Analyse der Symptome
 
 void SetHashMove();	
 void DisplayPV(int i);
@@ -19,7 +20,8 @@ int move_start, move_dest;
 int LowestAttacker(const int s, const int xs,const int sq);
 
 static int debugDepth = 0; //DEBUG
-static bool moveListFlag = false; //Debug
+static bool moveListFlag = false; //DEBUG
+static int oldHply = 0; //DEBUG
 std::fstream streamToLogSearch("logSearch.txt", std::ios::out); //DEBUG
 
 void DisplayBoardToFile(std::fstream& logfile, int flip)
@@ -338,20 +340,45 @@ int Search(int alpha, int beta, int depth)
 			//Jordan, FM Bill. How to Write a Bitboard Chess Engine: How Chess Programs Work
 			
 			bool illegalFlag = false;
+			
+#ifdef KORREKTUR
+			/// ////////////////////////////////////////////
+			/// Versuch einer Korrektur des unklaren Doppelsprungs von hply
+			/// </summary>
+			 if (hply - oldHply == 2)
+			 {
+				   int retVal = TakeBack(); 
+				   if (retVal == 1) {streamToLogSearch << "Figurenschlagen wurde rückgängig gemacht." << std::endl;}
+				   
+				   streamToLogSearch << "hply (korrigiert): " << hply 
+					   << "\nSeite: " << (!side ? "Weiß":"Schwarz") 
+					   << " Gegenseite: " << (!xside ? "Weiß" : "Schwarz") <<  std::endl;
+			 }				
+			/// ///////////////////////////////////////////
+#endif
+
 			int savedPly = ply;
-			int savedHPly = hply;
+			int savedHPly = oldHply = hply;
 			int savedSide = side;
 			int savedXSide = xside;
 			int savedFifty = fifty;
 
+			streamToLogSearch << "\n\n-------------------------" << std::endl;
+            streamToLogSearch << first_move[hply] << " hply: " << hply << std::endl;
 			std::string moveStr = "";
-			int j = 0;
+			for (int i = 0; i < hply; i++)
+			{
+				moveStr = MoveString(game_list[i].start, game_list[i].dest, game_list[i].promote);
+				streamToLogSearch << moveStr << " ";
+			}
+			streamToLogSearch << std::endl;
 			
 			//Die möglichen Züge (legal+illegal) beginnen ab first_move[0] == 0 und enden eins vor first_move[1]
 			streamToLogSearch << first_move[0] << " " << first_move[1] << " ply: " << ply << std::endl;
-			
+						
 			for (int i = 0;; i++)
-			{				
+			{   
+				int j = 0;				
 				moveStr = MoveString(move_list[i].start, move_list[i].dest, move_list[i].promote);
 				if (moveStr != "a1a1")
 				{
@@ -366,14 +393,7 @@ int Search(int alpha, int beta, int depth)
 				else
 					break;				
 			}
-			streamToLogSearch << "\n\n-------------------------" << std::endl;
-
-			streamToLogSearch << first_move[hply] << " hply: " << hply << std::endl;
-			for (int i = 0; i<hply; i++)
-			{
-				moveStr = MoveString(game_list[i].start, game_list[i].dest, game_list[i].promote);
-				streamToLogSearch << moveStr << " ";				
-			}
+			
 			streamToLogSearch << "\n\n-------------------------" << std::endl;
 
 			for (int i = first_move[ply]; i < first_move[ply+1]; ++i) // leider kann man hier nicht auf 0 und 1 setzen
@@ -385,10 +405,8 @@ int Search(int alpha, int beta, int depth)
 						<< MoveString(move_list[i].start, move_list[i].dest, move_list[i].promote)
 						<< std::endl;
 					
-					int retVal = 0;
-					retVal = TakeBack(); 
-					//if (retVal == 1) {streamToLogSearch << "Figurenschlagen wurde rückgängig gemacht." << std::endl;}
-					
+					int retVal = TakeBack(); 
+					//if (retVal == 1) {streamToLogSearch << "Figurenschlagen wurde rückgängig gemacht." << std::endl;}					
 				}
 				else
 				{
