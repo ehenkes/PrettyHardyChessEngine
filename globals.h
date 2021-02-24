@@ -7,6 +7,7 @@
 #include <dos.h>
 #include <time.h>
 #include <string>
+#include <fstream>
 #include "stdafx.h"
 
 void ShowAll(int ply);//
@@ -246,6 +247,7 @@ void Algebraic(int a);
 void SetMoves();
 
 //search.cpp
+void DisplayBoardToFile(std::fstream& logfile, int flip);
 void think();
 int Search(int alpha, int beta, int depth);
 int CaptureSearch(int alpha,int beta);

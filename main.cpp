@@ -192,6 +192,8 @@ void DisplayBoard()
         printf("\n\n   h g f e d c b a\n\n");
 }
 
+
+
 int ParseMove(char* s)
 {
     int start, dest, i;

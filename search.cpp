@@ -13,13 +13,83 @@ bool stop_search;
 
 int currentmax;
 
-int move_start,move_dest;
+int move_start, move_dest;
 
 int LowestAttacker(const int s, const int xs,const int sq);
 
 static int debugDepth = 0; //DEBUG
 static bool moveListFlag = false; //Debug
 std::fstream streamToLogSearch("logSearch.txt", std::ios::out); //DEBUG
+
+void DisplayBoardToFile(std::fstream& logfile, int flip)
+{	
+	int i, c, x=0;
+	
+	logfile << " S C H A C H B R E T T: \n\n" << std::endl;
+
+	if (flip == 0)
+		logfile << "\n8 ";
+	else
+		logfile << "\n1 ";
+
+	for (int j = 0; j < 64; ++j)
+	{
+		if (flip == 0)
+			i = Flip[j];
+		else
+			i = 63 - Flip[j];
+		c = EMPTY;
+		if (bit_units[White] & mask[i]) c = White;
+		if (bit_units[Black] & mask[i]) c = Black;
+		switch (c)
+		{
+		case EMPTY:
+			logfile << "  ";
+			break;
+		case White:
+			logfile << " " << (char)(piece_char[board[i]]);
+			break;
+		case Black:
+			logfile << " " << (char)(piece_char[board[i]] + ('a' - 'A'));
+			break;
+		default:
+			logfile << " " << (int)c;
+			break;
+		}
+
+		if ((bit_all & mask[i]) && board[i] == 6)
+			if (x == 0)
+				logfile << " " << (int)c;
+			else
+				logfile << (int)c << " ";
+
+		if (board[i] < 0 || board[i]>6)
+			if (x == 0)
+			{
+				logfile << " " << board[i];
+			}
+			else
+			{
+				logfile << board[i] << " ";
+			}
+
+		if (flip == 0)
+		{
+			if ((j + 1) % 8 == 0 && j != 63)
+				logfile << "\n" << row[i] << " ";
+		}
+		else
+		{
+			if ((j + 1) % 8 == 0 && row[i] != 7)
+				logfile << "\n" << row[j] + 2 << " ";
+		}
+	}
+
+	if (flip == 0)
+		logfile << "\n\n   a b c d e f g h\n\n";
+	else
+		logfile << "\n\n   h g f e d c b a\n\n";
+}
 
 /*
 
@@ -248,7 +318,7 @@ int Search(int alpha, int beta, int depth)
 		return 0;
 	AddHash(side, bestmove);
 
-	/*
+	
 	//DEBUG	///////////////////////////////////////////////	
 	//Alle Züge (an dieser Stelle auch noch illegale!!!) eines Halbzuges werden in die Log-Datei "logSearch.txt" ausgegeben:
 	if (depth > debugDepth)
@@ -271,8 +341,10 @@ int Search(int alpha, int beta, int depth)
 
 			std::string moveStr = "";
 			int j = 0;
+			
 			//Die möglichen Züge (legal+illegal) beginnen ab first_move[0] == 0 und enden eins vor first_move[1]
 			streamToLogSearch << first_move[0] << " " << first_move[1] << " ply: " << ply << std::endl;
+			
 			for (int i = 0;; i++)
 			{				
 				moveStr = MoveString(move_list[i].start, move_list[i].dest, move_list[i].promote);
@@ -289,7 +361,15 @@ int Search(int alpha, int beta, int depth)
 				else
 					break;				
 			}
-			streamToLogSearch << "-------------------------" << std::endl;
+			streamToLogSearch << "\n\n-------------------------" << std::endl;
+
+			streamToLogSearch << first_move[hply] << " hply: " << hply << std::endl;
+			for (int i = 0; i<hply; i++)
+			{
+				moveStr = MoveString(game_list[i].start, game_list[i].dest, game_list[i].promote);
+				streamToLogSearch << moveStr << " ";				
+			}
+			streamToLogSearch << "\n\n-------------------------" << std::endl;
 
 			for (int i = first_move[ply]; i < first_move[ply+1]; ++i) // leider kann man hier nicht auf 0 und 1 setzen
 			{
@@ -314,9 +394,11 @@ int Search(int alpha, int beta, int depth)
 			streamToLogSearch << std::endl;
 			
 			if (illegalFlag) // ToDo: Ausgaben legale/illegale Züge aus move_list nach erstem illegalem Zug noch nicht ok! 
-				             // Aber die Partie läuft weiter.
+				             // Aber die Partie läuft weiter. TakeBack() klappt hier in diesem Zweig nicht.
 			{
-				ply   = savedPly;
+				DisplayBoardToFile(streamToLogSearch, White);
+
+				ply = savedPly;
 				hply  = savedHPly;
 				side  = savedSide;
 				xside = savedXSide;
@@ -331,7 +413,7 @@ int Search(int alpha, int beta, int depth)
 				          << "\t" << " score " << std::setw(9) << bestmove.score << std::endl;		
 	}
 	//DEBUG	///////////////////////////////////////////////
-	*/
+	
 
 	return alpha;
 }
