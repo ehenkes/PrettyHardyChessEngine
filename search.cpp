@@ -327,11 +327,14 @@ int Search(int alpha, int beta, int depth)
 			int savedFifty = fifty;
 
 			streamToLogSearch << "hply: " << hply << std::endl;
-			std::string moveStr = "";
+			
 			for (int i = 0; i < hply; i++)
 			{
-				moveStr = MoveString(game_list[i].start, game_list[i].dest, game_list[i].promote);
-				streamToLogSearch << moveStr << " ";
+				if ((i > 0) && (i % 20 == 0))
+				{
+					streamToLogSearch << "\n";
+				}
+				streamToLogSearch << MoveString(game_list[i].start, game_list[i].dest, game_list[i].promote) << " ";									
 			}
 			streamToLogSearch << "\n\n-------------------------" << std::endl;
 
