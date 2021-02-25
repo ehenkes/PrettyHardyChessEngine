@@ -35,7 +35,7 @@ int LoadDiagram(char* file, int);
 ///  Eigene ParseFEN Funktion
 /// </summary>
 /// <param name="ts"></param>
-int ParseFEN(const char* ts);
+int ParseFEN(const char* ts, bool checkSide);
 char ts[200];
 
 void CloseDiagram();
@@ -322,7 +322,7 @@ void UCI()
                 if (strcmp(parameter, "moves"))
                 {
                     strcpy(command, parameter);
-                    computer_side = White; // warum ist das notwendig???
+                    //computer_side = White; // erscheint nicht notwendig???
                     optionalCommand = true;
                     continue;
                 }
@@ -387,14 +387,17 @@ void UCI()
                 getline(std::cin, input);
                 std::size_t pos = input.find(str2);
                 std::string str3 = "";
+                bool checkSide;
 
                 if (pos != std::string::npos)
                 { 
+                    checkSide = false;
                     str3 = input.substr(pos);
                     fen = input.substr(1, input.length() - str3.length() - 1); // vorne wird ein space eingelesen 
                 }
                 else
                 {
+                    checkSide = true;
                     fen = input.substr(1, input.length() - 1); // vorne wird ein space eingelesen 
                 }
                 
@@ -404,7 +407,7 @@ void UCI()
                 // fen umsetzen in Position, Rochade-Optionen, Seite am Zug ...
                 // https://de.wikipedia.org/wiki/Forsyth-Edwards-Notation#:~:text=Die%20Forsyth%2DEdwards%2DNotation%20(,Jahrhundert%20popul%C3%A4r.
 
-                ParseFEN(fen.c_str()); 
+                ParseFEN(fen.c_str(), checkSide); 
                 streamToLog << "\t" << str3 << std::endl;
                 if (str3 != "")
                 {
@@ -746,7 +749,7 @@ int LoadDiagram(char* file, int num) // wird nicht verwendet
     return 0;
 }
 
-int ParseFEN(const char* ts)
+int ParseFEN(const char* ts, bool checkSide)
 {
     int x, n = 0;
     static int count = 1;    
@@ -796,11 +799,17 @@ int ParseFEN(const char* ts)
     {
         if (ts[c + 1] == 'w') // Weiß zieht
         {
-            side = 0; xside = 1;
+            if (checkSide)
+            {
+                side = 0; xside = 1;
+            }                
         }
         if (ts[c + 1] == 'b') // Schwarz zieht
         {
-            side = 1; xside = 0;
+            if (checkSide)
+            {
+                side = 1; xside = 0;
+            }                
         }
     }
 
