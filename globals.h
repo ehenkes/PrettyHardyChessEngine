@@ -125,6 +125,9 @@ void ShowAll(int ply);//
 #define HASH_SCORE    100000000
 #define CAPTURE_SCORE 10000000
 
+extern const U64 MAXHASH; 
+extern const U64 HASHSIZE;
+
 typedef struct {
 	int start;
 	int dest;

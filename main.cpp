@@ -1,15 +1,15 @@
 ﻿#include "stdafx.h"
 #include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <string>
-#include <signal.h>
+#include <sstream> 
 #include <windows.h>
 #include <iostream>
 #include <fstream>
 #include <sys/timeb.h>
-#include <time.h>
+#include <ctime>
 #include "globals.h"
 #include <list>
 
@@ -255,18 +255,21 @@ void UCI()
     printf("\n");
     NewGame();
     fixed_time = 0;
+    std::stringstream ss;
 
-    std::cout << "id name PrettyHardyChessmaster Feb 2021\n"
+    ss << "id name PrettyHardyChessmaster Feb 2021\n"
         << "id author Erhard Henkes, Paul Puntschart (inspired by code of Bill Jordan)\n"
         << "option name UCI_Chess960 0\n"
         << "option name Threads 1\n"
-        << "option name Hash type spin default 128 min 16 max 2048\n"
+        << "option name Hash type spin default 128 min 16 max " << MAXHASH/1000000 << " \n"
         << "option name Syzygy50MoveRule 1\n"
         << "option name Ponder 0\n"
         << "uciok" << std::endl;
-
+    std::cout << ss.str();
     std::fstream streamToLog;
     streamToLog.open("log.txt", std::ios::out);
+    streamToLog << currentDateTime() << ": ENGINE:\n" << ss.str() << std::endl;
+    ss.str("");
     
     while (gameIsRunning)
     {        
@@ -285,7 +288,10 @@ void UCI()
 
         if (!strcmp(command, "isready"))
         {
-            std::cout << "readyok" << std::endl;
+            ss << "readyok";
+            std::cout << ss.str() << std::endl;
+            streamToLog << currentDateTime() << ": ENGINE: " << ss.str() << std::endl;
+            ss.str("");
             continue;
         }
 
@@ -320,7 +326,8 @@ void UCI()
                     optionalCommand = true;
                     continue;
                 }
-                else {
+                else 
+                {
                     if (!fgets(line, 2048, stdin)) 
                     {
                         gameIsRunning = false;
@@ -332,11 +339,14 @@ void UCI()
 
                     int last_space = 0;
 
-                    for (int i = 0; i < 2048; i++) {
-                        if (line[i] == '\n') {
+                    for (int i = 0; i < 2048; i++) 
+                    {
+                        if (line[i] == '\n') 
+                        {
                             break;
                         }
-                        if (line[i] == ' ') {
+                        if (line[i] == ' ') 
+                        {
                             last_space = i;
                         }
                     }
@@ -350,6 +360,7 @@ void UCI()
                         printf("The engine did not understand the given moves: \n");
                         printf(line);
                         printf("\n");
+                        streamToLog << "\t" << line << std::endl;
                         MoveString(move_list[m].start, move_list[m].dest, move_list[m].promote);
                     }
                     if (game_list[hply - 1].promote > 0 && (row[move_list[m].dest] == 0 || row[move_list[m].dest] == 7))
@@ -510,15 +521,6 @@ void UCI()
                 }
             }
             streamToLog << std::endl;
-                
-            /*
-            if(parameterList.empty())
-            {
-                strcpy(command, parameter);
-                //computer_side = White;
-                optionalCommand = true;                  
-            }
-            */
         }//if
         
         if (side == computer_side)
@@ -550,7 +552,8 @@ void UCI()
             continue;
         }
 
-        if (!strcmp(command, "ponderhit")) {
+        if (!strcmp(command, "ponderhit")) 
+        {
             // Noch nicht implementiert
             continue;
         }

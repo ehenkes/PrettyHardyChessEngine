@@ -6,8 +6,8 @@ U64 lock[2][6][64];
 U64 currentkey,currentlock;
 U64 collisions;
 
-const U64 MAXHASH =  1000000000; //   1 GiB
-const U64 HASHSIZE =  100000000; // 100 MiB
+const U64 MAXHASH =  10000000000; //  10 GiB
+const U64 HASHSIZE =  1000000000; //   1 GiB
 
 int hash_start,hash_dest;
 
@@ -19,7 +19,8 @@ struct hashp
 	int num;
 };
 
-hashp *hashpos[2];
+hashp* hashpos[2];
+
 /*
 RandomizeHash is called when the engine is started.
 The whitehash, blackhash, whitelock and blacklock tables
