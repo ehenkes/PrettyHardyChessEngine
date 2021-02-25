@@ -93,6 +93,17 @@ void DisplayBoardToFile(std::fstream& logfile, int flip)
 	else
 		logfile << "\n\n   h g f e d c b a\n\n";
 }
+
+int ShowCastleRights(std::fstream& logfile)
+{
+	if (castle & 1 || castle & 2) logfile << "w: ";
+	if (castle & 1) logfile << "0-0  ";
+	if (castle & 2) logfile << " 0-0-0  ";
+	if (castle & 4 || castle & 8) logfile << "b: ";
+	if (castle & 4) logfile << "0-0  ";
+	if (castle & 8) logfile << " 0-0-0";
+	return castle;
+}
 #endif
 
 /*
@@ -376,6 +387,9 @@ int Search(int alpha, int beta, int depth)
 			}
 
 			DisplayBoardToFile(streamToLogSearch, White);
+			streamToLogSearch << std::endl;
+			ShowCastleRights(streamToLogSearch);
+			streamToLogSearch << std::endl << std::endl;
 		}
 		
 		debugDepth++;
