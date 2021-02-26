@@ -13,13 +13,17 @@
 void ShowAll(int ply);//
 
 //// Eigene Definitionen
+
 #define MAXDEPTH 15 
+
 #define BISHOPSPAIR 25 // Additional score is +0.25 for the bishop's pair
+
+// http://www.billwallchess.com/articles/Value.htm
 #define PAWN_VALUE 100
-#define KNIGHT_VALUE 300
-#define BISHOP_VALUE 325
+#define KNIGHT_VALUE 325
+#define BISHOP_VALUE 350
 #define ROOK_VALUE 500
-#define QUEEN_VALUE 900
+#define QUEEN_VALUE 975
 #define KING_VALUE 10000
 //// Eigene Definitionen
 
