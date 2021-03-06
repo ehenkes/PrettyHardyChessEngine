@@ -17,6 +17,10 @@ void ShowHelp();
 void SetUp();
 void UCI();
 
+void ProcessMoves(char  line[2048], int& m, std::fstream& streamToLog);
+
+void ProcessMove(int& m, char  line[2048], int last_space, std::fstream& streamToLog);
+
 int board_color[64] =
 {
   1, 0, 1, 0, 1, 0, 1, 0,
@@ -322,7 +326,7 @@ void UCI()
                 if (strcmp(parameter, "moves"))
                 {
                     strcpy(command, parameter);
-                    //computer_side = White; // erscheint nicht notwendig???
+                    computer_side = White;
                     optionalCommand = true;
                     continue;
                 }
@@ -337,43 +341,7 @@ void UCI()
                     if (line[0] == '\n')
                         continue;
 
-                    int last_space = 0;
-
-                    for (int i = 0; i < 2048; i++) 
-                    {
-                        if (line[i] == '\n') 
-                        {
-                            break;
-                        }
-                        if (line[i] == ' ') 
-                        {
-                            last_space = i;
-                        }
-                    }
-
-                    ply = 0;
-                    first_move[0] = 0;
-                    Gen(side, xside);
-                    m = ParseMove(&line[last_space + 1]);
-                    if (m == -1 || !MakeMove(move_list[m].start, move_list[m].dest))
-                    {
-                        printf("The engine did not understand the given moves: \n");
-                        printf(line);
-                        printf("\n");
-                        streamToLog << "\t" << line << std::endl;
-                        MoveString(move_list[m].start, move_list[m].dest, move_list[m].promote);
-                    }
-                    if (game_list[hply - 1].promote > 0 && (row[move_list[m].dest] == 0 || row[move_list[m].dest] == 7))
-                    {
-                        RemovePiece(xside, Q, move_list[m].dest);
-                        if (line[4] == 'n' || line[4] == 'N')
-                            AddPiece(xside, N, move_list[m].dest);
-                        else if (line[4] == 'b' || line[4] == 'B')
-                            AddPiece(xside, B, move_list[m].dest);
-                        else if (line[4] == 'r' || line[4] == 'R')
-                            AddPiece(xside, R, move_list[m].dest);
-                        else AddPiece(xside, Q, move_list[m].dest);
-                    }
+                    ProcessMoves(line, m, streamToLog);
                 }
             }
 
@@ -568,6 +536,50 @@ void UCI()
     }//while
 
     streamToLog.close(); // file fuer log-Datei schliessen
+}
+
+void ProcessMoves(char  line[2048], int& m, std::fstream& streamToLog)
+{
+    int last_space = 0;
+    NewGame();
+    computer_side = EMPTY;
+
+    for (int i = 0; i < 2048; i++)
+    {
+        if (line[i] == '\n')
+        {
+            break;
+        }
+        if (line[i] == ' ')
+        {
+            last_space = i;
+            ProcessMove(m, line, last_space, streamToLog);
+        }
+    }
+}
+
+void ProcessMove(int& m, char  line[2048], int last_space, std::fstream& streamToLog)
+{
+    ply = 0;
+    first_move[0] = 0;
+    Gen(side, xside);
+    m = ParseMove(&line[last_space + 1]);
+    if (m == -1 || !MakeMove(move_list[m].start, move_list[m].dest))
+    {
+        streamToLog << "\t" << line << std::endl;
+        MoveString(move_list[m].start, move_list[m].dest, move_list[m].promote);
+    }
+    if (game_list[hply - 1].promote > 0 && (row[move_list[m].dest] == 0 || row[move_list[m].dest] == 7))
+    {
+        RemovePiece(xside, Q, move_list[m].dest);
+        if (line[4] == 'n' || line[4] == 'N')
+            AddPiece(xside, N, move_list[m].dest);
+        else if (line[4] == 'b' || line[4] == 'B')
+            AddPiece(xside, B, move_list[m].dest);
+        else if (line[4] == 'r' || line[4] == 'R')
+            AddPiece(xside, R, move_list[m].dest);
+        else AddPiece(xside, Q, move_list[m].dest);
+    }
 }
 
 void PrintResult()
