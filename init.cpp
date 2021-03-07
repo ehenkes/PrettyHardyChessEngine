@@ -3,7 +3,7 @@
 int side,xside;
 int fifty;
 int ply,hply;
-int nodes;
+U64 nodes;
 
 int board[64];
 

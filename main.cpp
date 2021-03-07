@@ -59,7 +59,7 @@ U64 max_time;
 U64 start_time;
 U64 stop_time;
 int max_depth;
-int max_nodes;
+U64 max_nodes;
 int turn = 0;
 
 void PrintResult();
@@ -405,7 +405,9 @@ void UCI()
                     << "Movetime wurde auf '" << value << "' ms gesetzt." << std::endl;
                 printf(" Engine received movetime ");
                 max_time = value; // values are given in [ms]
-                fixed_time = 1;
+                fixed_time  = 1;
+                fixed_nodes = 0;
+                fixed_depth = 0;
                 max_depth = MAX_PLY;
             }
             else if (!strcmp(parameter, "depth"))
@@ -417,6 +419,8 @@ void UCI()
                 printf(" Engine received depth ");
                 max_depth = value; // values are given in plies (Halbzuege)
                 fixed_depth = 1;
+                fixed_time  = 0;
+                fixed_nodes = 0;
             }
             else if (!strcmp(parameter, "nodes"))
             {
@@ -428,7 +432,7 @@ void UCI()
                 max_depth = MAX_PLY; // Halbzuege
                 fixed_nodes = 1;
                 fixed_depth = 0;                
-                fixed_time = 0;
+                fixed_time  = 0;
                 max_nodes = value;
             }
             else if (!strcmp(parameter, "infinite"))

@@ -14,7 +14,7 @@ void ShowAll(int ply);//
 
 //// Eigene Definitionen
 
-#define MAXDEPTH 15 
+#define MAXDEPTH 23 
 
 #define BISHOPSPAIR 25 // Additional score is +0.25 for the bishop's pair
 
@@ -165,7 +165,7 @@ extern int ply,hply;
 extern int castle;
 extern int castle_mask[64];
 
-extern int nodes;
+extern U64 nodes;
 
 extern int board[64];
 extern int init_color[64];
@@ -194,7 +194,7 @@ extern U64 max_time;
 extern U64 start_time;
 extern U64 stop_time;
 extern int max_depth;
-extern int max_nodes;
+extern U64 max_nodes;
 
 extern int qrb_moves[64][9];
 extern int knight_moves[64][9];
