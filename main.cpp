@@ -17,7 +17,7 @@ void ShowHelp();
 void SetUp();
 void UCI();
 
-void ProcessMoves(char  line[2048], int& m, std::fstream& streamToLog);
+void ProcessMoves(char  line[2048], int& m, std::fstream& streamToLog, bool fen=false);
 
 void ProcessMove(int& m, char  line[2048], int last_space, std::fstream& streamToLog);
 
@@ -255,20 +255,18 @@ void UCI()
     bool gameIsRunning = true;
     bool optionalCommand = false;
 
-    signal(SIGINT, SIG_IGN);
-    printf("\n");
     NewGame();
     fixed_time = 0;
     std::stringstream ss;
 
     ss << "id name PrettyHardyChessmaster Feb 2021\n"
-        << "id author Erhard Henkes, Paul Puntschart (inspired by code of Bill Jordan)\n"
-        << "option name UCI_Chess960 0\n"
-        << "option name Threads 1\n"
-        << "option name Hash type spin default 128 min 16 max " << MAXHASH/1000000 << " \n"
-        << "option name Syzygy50MoveRule 1\n"
-        << "option name Ponder 0\n"
-        << "uciok" << std::endl;
+       << "id author Erhard Henkes, Paul Puntschart (inspired by code of Bill Jordan)\n"
+       << "option name UCI_Chess960 0\n"
+       << "option name Threads 1\n"
+       << "option name Hash type spin default 128 min 16 max " << MAXHASH/1000000 << " \n"
+       << "option name Syzygy50MoveRule 1\n"
+       << "option name Ponder 0\n"
+       << "uciok" << std::endl;
     std::cout << ss.str();
     std::fstream streamToLog;
     streamToLog.open("log.txt", std::ios::out);
@@ -340,7 +338,7 @@ void UCI()
 
                     if (line[0] == '\n')
                         continue;
-
+                    streamToLog << "\tstartpos + move sequence: " << line << std::endl;
                     ProcessMoves(line, m, streamToLog);
                 }
             }
@@ -350,17 +348,19 @@ void UCI()
             /// 
             if (!strcmp(parameter, "fen"))
             {
-                std::string fen, input;
-                std::string str2("moves ");
+                InitBoard(); ///// TEST
+
+                std::string fen, input, str2("moves ");
                 getline(std::cin, input);
-                std::size_t pos = input.find(str2);
-                std::string str3 = "";
+                std::size_t pos = input.find(str2); // position of "moves" 
+                std::string str3 = ""; 
                 bool checkSide;
 
+                // fen is separated
                 if (pos != std::string::npos)
                 { 
                     checkSide = false;
-                    str3 = input.substr(pos);
+                    str3 = input.substr(pos); // part of input until "moves"
                     fen = input.substr(1, input.length() - str3.length() - 1); // vorne wird ein space eingelesen 
                 }
                 else
@@ -368,21 +368,26 @@ void UCI()
                     checkSide = true;
                     fen = input.substr(1, input.length() - 1); // vorne wird ein space eingelesen 
                 }
-                
                 fen = input.substr(1, input.length() - str3.length() - 1); // vorne wird ein space eingelesen 
                 streamToLog << "\t" << fen << std::endl;
 
                 // fen umsetzen in Position, Rochade-Optionen, Seite am Zug ...
                 // https://de.wikipedia.org/wiki/Forsyth-Edwards-Notation#:~:text=Die%20Forsyth%2DEdwards%2DNotation%20(,Jahrhundert%20popul%C3%A4r.
-
                 ParseFEN(fen.c_str(), checkSide); 
-                streamToLog << "\t" << str3 << std::endl;
-                if (str3 != "")
+                streamToLog << "\t" << str3 << std::endl; // str3 contains fen 
+                if (str3 != "") 
                 {
                     strcpy(parameter, str3.c_str());
-                }                
+                    streamToLog << "\t" << "parameter: " << parameter << std::endl;
+                    streamToLog << "\tfen + move sequence: " << const_cast<char*>((str3.substr(5) + "\n").c_str()) << std::endl;
+                    ProcessMoves(const_cast<char*>((str3.substr(5)+"\n").c_str()), m, streamToLog, 1); // last parameter 1 means moves ... behind fen position
+                }
+                else
+                {
+                    streamToLog << "\t" << "no moves behind fen." << std::endl;
+                    // do nothing
+                }
             }            
-
             continue;
         }
 
@@ -538,11 +543,18 @@ void UCI()
     streamToLog.close(); // file fuer log-Datei schliessen
 }
 
-void ProcessMoves(char  line[2048], int& m, std::fstream& streamToLog)
+void ProcessMoves(char line[2048], int& m, std::fstream& streamToLog, bool fen)
 {
     int last_space = 0;
-    NewGame();
-    computer_side = EMPTY;
+    if (!fen)
+    {
+        NewGame();
+        computer_side = EMPTY;
+    }
+    else
+    {
+        // with fen we do not want a new move sequence from startposition        
+    }
 
     for (int i = 0; i < 2048; i++)
     {
@@ -560,10 +572,12 @@ void ProcessMoves(char  line[2048], int& m, std::fstream& streamToLog)
 
 void ProcessMove(int& m, char  line[2048], int last_space, std::fstream& streamToLog)
 {
+    streamToLog << "m= " << m << "  line[last_space + 1]: " << line[last_space + 1] << "  last_space: " << last_space << "  ";
     ply = 0;
     first_move[0] = 0;
     Gen(side, xside);
     m = ParseMove(&line[last_space + 1]);
+    streamToLog << "Zug: " << move_list[m].start << "-" << move_list[m].dest << std::endl; // a1 = 0 bis h8 = 63 // ToDo: modernes Algebraic, das String zurückliefert 
     if (m == -1 || !MakeMove(move_list[m].start, move_list[m].dest))
     {
         streamToLog << "\t" << line << std::endl;
