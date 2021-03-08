@@ -380,15 +380,8 @@ void UCI()
                 if (str3 != "") 
                 {
                     strcpy(parameter, str3.c_str());
-                    streamToLog << "\t" << "parameter: " << parameter << std::endl;
-                    streamToLog << "\tfen + move sequence: " << const_cast<char*>((str3.substr(5) + "\n").c_str()) << std::endl;
                     ProcessMoves(const_cast<char*>((str3.substr(5)+"\n").c_str()), m, streamToLog, 1); // last parameter 1 means moves ... behind fen position
-                }
-                else
-                {
-                    streamToLog << "\t" << "no moves behind fen." << std::endl;
-                    // do nothing
-                }
+                }                
             }            
             continue;
         }

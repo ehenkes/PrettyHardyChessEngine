@@ -349,11 +349,14 @@ int Search(int alpha, int beta, int depth)
 			}
 			streamToLogSearch << "\n\n-------------------------" << std::endl;
 
+			int countLegalMoves = 0;
+
 			for (int i = first_move[ply]; i < first_move[ply+1]; ++i) 
 			{
 				if (MakeMove(move_list[i].start, move_list[i].dest))
 				{
 					// legaler Zug
+					countLegalMoves++;
 					streamToLogSearch << "legal(" << std::setw(2) << i + 1 << "): " << "\t"
 						<< MoveString(move_list[i].start, move_list[i].dest, move_list[i].promote)
 						<< std::endl;
@@ -385,6 +388,9 @@ int Search(int alpha, int beta, int depth)
 				
 				illegalFlag = false;
 			}
+
+			streamToLogSearch << "\nAnzahl legaler Züge (Mobilität und Komplexität): " << countLegalMoves << std::endl; 
+			std::cout << "info string countLegalMoves " << countLegalMoves << std::endl;
 
 			DisplayBoardToFile(streamToLogSearch, White);
 			streamToLogSearch << std::endl;
