@@ -149,7 +149,7 @@ void think()
 	NewPosition(); // NewPosition gets the board ready before the computer starts to think.
 	memset(history, 0, sizeof(history)); //History tables are cleared.
 	
-	printf("ply    score         time\t\t\t nodes\t principal variation\n");
+	std::cout << "ply    score         time\t\t\t nodes\t principal variation" << std::endl;
 	for (int i = 1; i <= max_depth; ++i)
 	{
 		// It iterates until the maximum depth for the move is reached or until the allotted time has run out. 
@@ -191,7 +191,7 @@ void think()
 			std::cout << std::endl;
 		}
 
-		printf("%0*d\t%*d\t  %*llu\t  %*d\t", 3, i,
+		printf("%0*d\t%*d\t  %*llu\t  %*llu\t", 3, i,
 			4, x,
 			7, (GetTime() - start_time) / 10,
 			20, nodes);
@@ -205,11 +205,11 @@ void think()
 			move_start = 0;
 			move_dest = 0;
 		}
-		printf("\n");
-		fflush(stdout);
+		std::cout << std::endl;
 
 		if (x > 9000 || x < -9000) // If the score is greater than 9000 it means a forced mate has been found, 
 		{
+			std::cout << "info string A forced mate has been found!" << std::endl;
 			break; //in which case it stops searching.
 		}
 	}
@@ -631,10 +631,11 @@ void DisplayPV(int i)
 	{
 		if(LookUp(side)==false)
 			break;
-		printf(" ");
+		std::cout << " ";
 		Alg(hash_start,hash_dest); // The function Algebraic displays a square
 		MakeMove(hash_start,hash_dest);
 	}
+	
 	while (ply)
 		TakeBack(); // TakeBack is the opposite of MakeMove
 }

@@ -16,7 +16,7 @@ void ShowAll(int ply);//
 
 #define MAXDEPTH 23 
 
-#define BISHOPSPAIR 25 // Additional score is +0.25 for the bishop's pair
+#define BISHOPPAIR 25 // Additional score is +0.25 for the bishop's pair
 
 // http://www.billwallchess.com/articles/Value.htm
 #define PAWN_VALUE 100

@@ -24,11 +24,7 @@ int first_move[MAX_PLY];
 
 game game_list[GAME_STACK];
 
-char piece_char[6] = 
-{
-	'P', 'N', 'B', 'R', 'Q', 'K'
-};
-
+char piece_char[6] = {'P', 'N', 'B', 'R', 'Q', 'K'};
 
 // Werte für Figuren, Reihenfolge 'P', 'N', 'B', 'R', 'Q', 'K' 
 // Wert für Läufer von 300 versuchsweise auf 325 geändert am 19.02.2021
@@ -479,80 +475,3 @@ void SetMoves()
 
 	nodes = 0;
 }
-
-/*dont need below here*/
-/*
-int done[100];
-int GetBest(int ply);//
-void ShowAll(int ply)
-{
-
-	move *g;
-	DisplayBoard();
-	memset(done, 0, sizeof(done));
-
-    printf(" ply ");
-    printf("%d",ply);
-    printf(" nodes ");
-    printf("%d",nodes);
-    printf(" side ");
-    printf("%d",side);
-    printf(" xside ");
-    printf("%d",xside);
-    printf("\n");
-  
-	printf(" one %d ",first_move[ply]);
-	printf(" two %d ",first_move[ply+1]);
-	    
-	Alg(move_list[first_move[0]].start,move_list[first_move[0]].dest);
-	printf("\n");
- 
-     int j;
-	 for(int i=first_move[ply];i<first_move[ply+1];i++)
-	 //     for(int i=first_move[ply+1];i<first_move[ply + 2];i++)
-	 {
-			j = GetBest(ply);
-			{
-				//how dest display current line?
-				g = &move_list[j];
-				printf("%s",MoveString(move_list[j].start,move_list[j].dest,move_list[j].promote));
-				printf(" ");
-				printf(" score ");
-				printf("%d",g->score);
-				printf("\n");
-			}
-	 }
-	 printf("\n");
- 
-  _getch();
-}
-
-int GetBest(int ply)
-{
-	move *g;
-	int bestscore = -100000000;
-	int best = 0;
-	
-	for(int i=0;i<first_move[ply+1]-first_move[ply];i++)
-	{
-		if(done[i] == 1) 
-			continue;
-		
-		g = &move_list[first_move[ply] + i];
-		
-		if(g->start == 0 && g->dest == 0)
-			continue;//
-		
-		if(g->score > bestscore)
-		{
-			bestscore= g->score;
-			best = i;
-		}
-	}
-
-	if(best<1000) 
-		done[best]=1;//1000?
-	
-	return first_move[ply]+best;
-}
-*/

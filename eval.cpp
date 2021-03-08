@@ -1,5 +1,5 @@
 #include "globals.h"
-#include <time.h>
+#include <ctime>
 #include <fstream>
 
 const int ISOLATED = 20;
@@ -36,7 +36,7 @@ const int queenside_defence[2][64]=
 }};
 
 // pawn defence score
-const int kingside_defence[2][64]=
+const int kingside_defence[2][64] =
 {
 {
 	0, 0, 0, 0, 0, 0, 0, 0,
@@ -57,7 +57,7 @@ const int kingside_defence[2][64]=
 	0, 0, 0, 0, 0, 8, 6, 8,
 	0, 0, 0, 0, 0, 8,10, 8,
 	0, 0, 0, 0, 0, 0, 0, 0
-}};
+} };
 /*
 
 Eval() is simple. 
@@ -113,7 +113,7 @@ int Eval()
 		}
 		//streamToLogEval << currentDateTime() << ": " << (x ? "Black" : "White") << " owns " << countBishops[x] << " bishops." << std::endl;
 		if (countBishops[x] > 1) // Laeuferpaar
-			score[x] += BISHOPSPAIR;
+			score[x] += BISHOPPAIR;
 				
 		b1 = bit_pieces[x][R]; // rook
 		while(b1)
@@ -173,35 +173,35 @@ EvalPawn() evaluates each pawn and gives a bonus for passed pawns
 and a minus for isolated pawns.
 
 */
-int EvalPawn(const int s,const int sq)
+int EvalPawn(const int s, const int sq)
 {
-int score = 0;
-int xs = s^1;
+	int score = 0;
+	int xs = s ^ 1;
 
-if(!(mask_passed[s][sq] & bit_pieces[xs][P]) && !(mask_path[s][sq] & bit_pieces[s][P]))
-{
-	score += passed[s][sq];
-}
-if((mask_isolated[sq] & bit_pieces[s][P])==0)
-	score -= ISOLATED;
-kingside_pawns[s] += kingside_defence[s][sq];
-queenside_pawns[s] += queenside_defence[s][sq];
+	if (!(mask_passed[s][sq] & bit_pieces[xs][P]) && !(mask_path[s][sq] & bit_pieces[s][P]))
+	{
+		score += passed[s][sq];
+	}
+	if ((mask_isolated[sq] & bit_pieces[s][P]) == 0)
+		score -= ISOLATED;
+	kingside_pawns[s] += kingside_defence[s][sq];
+	queenside_pawns[s] += queenside_defence[s][sq];
 
-return score;
+	return score;
 }
 /*
 
 EvalRook() evaluates each rook and gives a bonus for being
 on an open file or half-open file.
 */
-int EvalRook(const int s,const int sq)
+int EvalRook(const int s, const int sq)
 {
-int score = 0;
-if(!(mask_cols[sq] & bit_pieces[s][P]))
-{
-	score = 10;
-	if(!(mask_cols[sq] & bit_pieces[s^1][P]))
-		score = 20;
-}
-return score;
+	int score = 0;
+	if (!(mask_cols[sq] & bit_pieces[s][P]))
+	{
+		score = 10;
+		if (!(mask_cols[sq] & bit_pieces[s ^ 1][P]))
+			score = 20;
+	}
+	return score;
 }

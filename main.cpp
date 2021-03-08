@@ -7,6 +7,7 @@
 #include <sstream> 
 #include <windows.h>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sys/timeb.h>
 #include <ctime>
@@ -118,9 +119,9 @@ void DisplayBoard()
     int c;
 
     if (flip == 0)
-        printf("\n8 ");
+        std::cout << "\n8 ";
     else
-        printf("\n1 ");
+        std::cout << "\n1 ";
 
     for (int j = 0; j < 64; ++j)
     {
@@ -141,7 +142,7 @@ void DisplayBoard()
                 text = 34;
             SetConsoleTextAttribute(hConsole, text);
 
-            printf("  ");
+            std::cout << "  ";
             SetConsoleTextAttribute(hConsole, 15);
             break;
         case White:
@@ -150,7 +151,7 @@ void DisplayBoard()
             else
                 text = 46;
             SetConsoleTextAttribute(hConsole, text);
-            printf(" %c", piece_char[board[i]]);
+            std::cout << " " << (char)piece_char[board[i]]; 
             SetConsoleTextAttribute(hConsole, 15);
             break;
 
@@ -160,40 +161,41 @@ void DisplayBoard()
             else
                 text = 32;
             SetConsoleTextAttribute(hConsole, text);
-            printf(" %c", piece_char[board[i]] + ('a' - 'A'));
+            std::cout << " " << (char)(piece_char[board[i]] + ('a' - 'A'));
             SetConsoleTextAttribute(hConsole, 15);
             break;
 
         default:
-            printf(" %d.", c);
+            std::cout << " " << c;
             break;
-
         }
+
         if ((bit_all & mask[i]) && board[i] == 6)
             if (x == 0)
-                printf(" %d", c);
+                std::cout << " " << c;
             else
-                printf("%d ", c);
+                std::cout << c << " ";
         if (board[i] < 0 || board[i]>6)
             if (x == 0)
-                printf(" %d.", board[i]);
+                std::cout << " " << board[i];
             else
-                printf("%d ", board[i]);
+                std::cout << board[i] << " ";
+
         if (flip == 0)
         {
             if ((j + 1) % 8 == 0 && j != 63)
-                printf("\n%d ", row[i]);
+                std::cout << "\n" << row[i] << " "; 
         }
         else
         {
             if ((j + 1) % 8 == 0 && row[i] != 7)
-                printf("\n%d ", row[j] + 2);
+                std::cout << "\n" << row[j] + 2 << " ";
         }
     }
     if (flip == 0)
-        printf("\n\n   a b c d e f g h\n\n");
+        std::cout << "\n\n   a b c d e f g h\n\n";
     else
-        printf("\n\n   h g f e d c b a\n\n");
+        std::cout << "\n\n   h g f e d c b a\n\n";
 }
 
 
@@ -403,7 +405,7 @@ void UCI()
                 std::cin >> value;
                 streamToLog << currentDateTime() << ": "
                     << "Movetime wurde auf '" << value << "' ms gesetzt." << std::endl;
-                printf(" Engine received movetime ");
+                std::cout << " Engine received movetime ";
                 max_time = value; // values are given in [ms]
                 fixed_time  = 1;
                 fixed_nodes = 0;
@@ -416,7 +418,7 @@ void UCI()
                 std::cin >> value;
                 streamToLog << currentDateTime() << ": "
                     << "Depth wurde auf '" << value << "' Halbzuege gesetzt." << std::endl;
-                printf(" Engine received depth ");
+                std::cout << " Engine received depth ";
                 max_depth = value; // values are given in plies (Halbzuege)
                 fixed_depth = 1;
                 fixed_time  = 0;
@@ -428,7 +430,7 @@ void UCI()
                 std::cin >> value;
                 streamToLog << currentDateTime() << ": "
                     << "Nodes wurde auf '" << value << "' gesetzt." << std::endl;
-                printf(" Engine received nodes ");
+                std::cout << " Engine received nodes ";
                 max_depth = MAX_PLY; // Halbzuege
                 fixed_nodes = 1;
                 fixed_depth = 0;                
@@ -439,7 +441,7 @@ void UCI()
             {
                 streamToLog << currentDateTime() << ": "
                     << "Depth und Movetime wurde auf 'infinite' gesetzt." << std::endl;
-                printf(" Engine received infinite. We use MAXDEPTH.");
+                std::cout << " Engine received infinite. We use MAXDEPTH.";
                 max_depth = MAXDEPTH; // values are given in plies (Halbzuege)
                 fixed_depth = 1;
                 fixed_nodes = 0;
@@ -453,7 +455,7 @@ void UCI()
                 int value;
                 std::cin >> value;
                 streamToLog << "\tZeit fuer Weiss wurde auf '" << value << "' ms gesetzt." << std::endl;
-                printf(" Engine received wtime ");
+                std::cout << " Engine received wtime ";
                 //ToDo: Zeit für Weiss setzen
                 // 
                 // Erste Idee:
@@ -482,21 +484,21 @@ void UCI()
                 {
                     int value = std::stoi(*(++it));
                     streamToLog << "\tZeit fuer Schwarz wurde auf '" << value << "' ms gesetzt." << std::endl;
-                    printf(" Engine received btime ");
+                    std::cout << " Engine received btime ";
                 }
                 
                 if (!strcmp(it->c_str(), "winc"))
                 {
                     int value = std::stoi(*(++it));
                     streamToLog << "\tInkrement pro Zug wurde auf '" << value << "' ms gesetzt." << std::endl;
-                    printf(" Engine received winc ");
+                    std::cout << " Engine received winc ";
                     max_time += value; // values are given in [ms]; Inkrement wird pro Zug addiert                    
                     streamToLog << "\tZeit pro Zug wurde (incl.Inkrement) auf '"  << max_time << "' ms erhoeht." << std::endl;                                        
                 }
                 
                 if (!strcmp(it->c_str(), "binc"))
                 {
-                    printf(" Engine received binc ");  
+                    std::cout << " Engine received binc ";
                     //ToDo: clarify value handling
                 }
             }
@@ -518,11 +520,11 @@ void UCI()
                 hash_dest = move_dest;
             }
             else
-                printf(" lookup=0 ");
+                std::cout << " lookup=0 ";
 
             move_list[0].start = hash_start;
             move_list[0].dest = hash_dest;
-            printf("bestmove %s\n", MoveString(hash_start, hash_dest, 0));
+            std::cout << "bestmove " << MoveString(hash_start, hash_dest, 0) << "\n";
 
             MakeMove(hash_start, hash_dest);
 
@@ -576,15 +578,13 @@ void ProcessMoves(char line[2048], int& m, std::fstream& streamToLog, bool fen)
 
 void ProcessMove(int& m, char  line[2048], int last_space, std::fstream& streamToLog)
 {
-    streamToLog << "m= " << m << "  line[last_space + 1]: " << line[last_space + 1] << "  last_space: " << last_space << "  ";
     ply = 0;
     first_move[0] = 0;
     Gen(side, xside);
     m = ParseMove(&line[last_space + 1]);
-    streamToLog << "Zug: " << move_list[m].start << "-" << move_list[m].dest << std::endl; // a1 = 0 bis h8 = 63 // ToDo: modernes Algebraic, das String zurückliefert 
+    
     if (m == -1 || !MakeMove(move_list[m].start, move_list[m].dest))
     {
-        streamToLog << "\t" << line << std::endl;
         MoveString(move_list[m].start, move_list[m].dest, move_list[m].promote);
     }
     if (game_list[hply - 1].promote > 0 && (row[move_list[m].dest] == 0 || row[move_list[m].dest] == 7))
@@ -617,7 +617,6 @@ void PrintResult()
 
     if (pawn_mat[0] == 0 && pawn_mat[1] == 0 && piece_mat[0] <= 300 && piece_mat[1] <= 300)
     {
-        //printf("1/2-1/2 {Stalemate}\n");
         std::cout << "info string 1/2-1/2 {Stalemate}\n"; //UCI
 
         NewGame();
@@ -628,25 +627,22 @@ void PrintResult()
     {
         Gen(side, xside);
         DisplayBoard();
-        //printf(" end of game ");
+        
         std::cout << "info string end of game\n"; //UCI
 
         if (Attack(xside, NextBit(bit_pieces[side][K])))
         {
             if (side == 0)
             {
-                //printf("0-1 {Black mates}\n");
                 std::cout << "info string 0-1 {Black mates}\n"; //UCI
             }
             else
             {
-                //printf("1-0 {White mates}\n");
                 std::cout << "info string 1-0 {White mates}\n"; //UCI
             }
         }
         else
         {
-            //printf("1/2-1/2 {Stalemate}\n");
             std::cout << "info string 1/2-1/2 {Stalemate}\n"; //UCI
         }
         NewGame();
@@ -654,14 +650,12 @@ void PrintResult()
     }
     else if (reps() >= 3)
     {
-        //printf("1/2-1/2 {Draw by repetition}\n");
         std::cout << "info string 1/2-1/2 {Draw by repetition}\n"; //UCI
         NewGame();
         computer_side = EMPTY;
     }
     else if (fifty >= 100)
     {
-        //printf("1/2-1/2 {Draw by fifty move rule}\n");
         std::cout << "info string 1/2-1/2 {Draw by fifty move rule}\n"; //UCI
         NewGame();
         computer_side = EMPTY;
@@ -687,7 +681,7 @@ int LoadDiagram(char* file, int num) // wird nicht verwendet
     diagram_file = fopen(file, "r");
     if (!diagram_file)
     {
-        printf("Diagram missing.\n");
+        std::cout << "Diagram missing." << std::endl;
         return -1;
     }
 
@@ -769,13 +763,13 @@ int LoadDiagram(char* file, int num) // wird nicht verwendet
     DisplayBoard();
     NewPosition();
     Gen(side, xside);
-    printf(" diagram # %d \n", num + count);
+    std::cout << " diagram # " << num + count << "\n";
     count++;
     if (side == 0)
-        printf("White to move\n");
+        std::cout << "White to move\n";
     else
-        printf("Black to move\n");
-    printf(" %s \n", ts);
+        std::cout << "Black to move\n";
+    std::cout << " " << ts << std::endl;
     return 0;
 }
 
@@ -863,19 +857,16 @@ int ParseFEN(const char* ts, bool checkSide)
     DisplayBoard();
     NewPosition();
     Gen(side, xside);
-    // printf(" diagram # %d \n", num + count);
+    
     count++;
     if (side == 0)
     {
-        printf("White to move\n");
         std::cout << "info string White to move\n"; //UCI
     }
     else
     {
-        printf("Black to move\n");
         std::cout << "info string Black to move\n"; //UCI
     }        
-    //printf(" %s \n", ts);
     std::cout << "info string " << ts << std::endl; //UCI
     return 0;
 }
@@ -886,27 +877,6 @@ void CloseDiagram()
         fclose(diagram_file);
     diagram_file = NULL;
 }
-
-/*
-void ShowHelp()
-{
-    printf("d - Displays the board.\n");
-    printf("f - Flips the board.\n");
-    printf("go - Starts the engine.\n");
-    printf("help - Displays help on the commands.\n");
-    printf("moves - Displays of list of possible moves.\n");
-    printf("new - Starts a new game .\n");
-    printf("off - Turns the computer player off.\n");
-    printf("on or p - The computer plays a move.\n");
-    printf("sb - Loads a fen diagram.\n");
-    printf("sd - Sets the search depth.\n");
-    printf("st - Sets the time limit per move in seconds.\n");
-    printf("sw - Switches sides.\n");
-    printf("quit - Quits the program.\n");
-    printf("undo - Takes back the last move.\n");
-    printf("xboard - Starts xboard.\n");
-}
-*/
 
 void SetUp()
 {
