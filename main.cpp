@@ -110,6 +110,7 @@ The console object is only used to display in colour.
 */
 void DisplayBoard()
 {
+    /*
     HANDLE hConsole;
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     int text = 15;
@@ -196,6 +197,7 @@ void DisplayBoard()
         std::cout << "\n\n   a b c d e f g h\n\n";
     else
         std::cout << "\n\n   h g f e d c b a\n\n";
+        */
 }
 
 
@@ -534,7 +536,7 @@ void UCI()
         }
 
         if (!strcmp(command, "quit") || !strcmp(command, "stop"))
-        {
+        {            
             gameIsRunning = false;            
         }            
     }//while
@@ -888,6 +890,7 @@ void NewGame()
 {
     InitBoard();
     Gen(side, xside);
+    StopForNewGame = true;
 }
 
 void SetMaterial()

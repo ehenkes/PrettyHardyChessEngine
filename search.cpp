@@ -7,6 +7,7 @@
 #define DEBUG // zur Ausgabe in ein Logfile
 
 jmp_buf env;
+bool StopForNewGame;
 bool stop_search;
 int currentmax;
 int move_start, move_dest;
@@ -137,7 +138,8 @@ void think()
 	if (fixed_time == 0)
 	{
 		if (Attack(xside, NextBit(bit_pieces[side][K])))
-			max_time /= 2;
+			//max_time /= 2;
+			max_time /= 4; //acceleration test
 	}
 
 	start_time = GetTime(); //The starting time is stored.
@@ -181,7 +183,7 @@ void think()
 
 		// Each iteration it calls search(). alpha is set low while beta is set high. 
 		// alpha increases while beta decreases. They move closer together.
-		x = Search(-10000, 10000, i);
+		x = Search(-10000, 10000, i); // alpha, beta, depth 
 
 		// output for UCI
 		if (LookUp(side))
@@ -191,10 +193,13 @@ void think()
 			std::cout << std::endl;
 		}
 
-		printf("%0*d\t%*d\t  %*llu\t  %*llu\t", 3, i,
-			4, x,
-			7, (GetTime() - start_time) / 10,
-			20, nodes);
+		/*
+		printf("%0*d\t%*d\t  %*llu\t",
+			3, i, //depth
+			4, x, //score
+			7, (GetTime() - start_time) / 10, //time
+			20, nodes); //nodes
+		*/
 
 		if (LookUp(side))
 		{
@@ -227,7 +232,7 @@ int Search(int alpha, int beta, int depth)
 		return CaptureSearch(alpha,beta);
 
 	nodes++;
-	if ((nodes & 4095) == 0) // Every 4, 000 positions approx the time is checked.
+	if ((nodes & 4095) == 0) // Every 4,000 positions approx the time is checked.
 		CheckUp(); // checkup checks to see if the time has run out. If so, the search ends.
 	
 	if (ply > MAX_PLY-2)
@@ -260,12 +265,11 @@ int Search(int alpha, int beta, int depth)
 	
 		if (Attack(xside,NextBit(bit_pieces[side][K]))) // If the move is check, we extend by one ply.
 		{									// This is done by not changing depth in the call to search.
-			//d = depth;
 			d = depth - 1; // Auf normale Suche abgeändert, da dies bei der Suche nach legalen Zügen massiv stört!!!
 		}
 		else
 		{
-		    d = depth - 3; // <-- Gefahr??
+		    d = depth - 3; 
 			if(move_list[i].score > CAPTURE_SCORE || c==1 || check==1) // If it has a score greater than zero, 
 				                                                       // ply is one or the move number is less than 12
 			{                                                          // a normal search is done. 
@@ -273,7 +277,7 @@ int Search(int alpha, int beta, int depth)
 			}
 			else if(move_list[i].score > 0) // Otherwise we reduce by one ply.
 			{
-				d = depth - 2; // This is done by subtracting 2 from depth. // <-- Gefahr??
+				d = depth - 2; // This is done by subtracting 2 from depth. 
 			}
 		}
 				
@@ -415,61 +419,61 @@ It generates all captures and does a recapture search to see if material is won.
 If so, the material gain is added to the score.
 
 */
-int CaptureSearch(int alpha,int beta)
+int CaptureSearch(int alpha, int beta)
 {
-nodes++;
+	nodes++;
 
-int x = Eval();
+	int x = Eval();
 
-if (x > alpha)
-{
-	if(x >= beta)
-	{	
-		return beta;
+	if (x > alpha)
+	{
+		if (x >= beta)
+		{
+			return beta;
+		}
+		alpha = x;
 	}
-	alpha = x;
-}
-else if(x + 900 < alpha)
-	return alpha;
+	else if (x + 900 < alpha)
+		return alpha;
 
-int score = 0, bestmove = 0;
-int best = 0;
+	int score = 0, bestmove = 0;
+	int best = 0;
 
-GenCaptures(side,xside);
+	GenCaptures(side, xside);
 
-for (int i = first_move[ply]; i < first_move[ply + 1]; ++i) 
-{
+	for (int i = first_move[ply]; i < first_move[ply + 1]; ++i)
+	{
 		Sort(i);
 
-		if(x + piece_value[board[move_list[i].dest]] < alpha)
+		if (x + piece_value[board[move_list[i].dest]] < alpha)
 		{
 			continue;
 		}
 
-	    score = ReCaptureSearch(move_list[i].start, move_list[i].dest);
-		
-		if(score>best)
+		score = ReCaptureSearch(move_list[i].start, move_list[i].dest);
+
+		if (score > best)
 		{
 			best = score;
 			bestmove = i;
 		}
-}
-
-if(best>0)
-{
-	x += best;
-}
-if (x > alpha) 
-{
-	if (x >= beta)
-	{	
-		if(best>0)
-			AddHash(side, move_list[bestmove]);
-		return beta;
 	}
-	return x;
-}
-return alpha;
+
+	if (best > 0)
+	{
+		x += best;
+	}
+	if (x > alpha)
+	{
+		if (x >= beta)
+		{
+			if (best > 0)
+				AddHash(side, move_list[bestmove]);
+			return beta;
+		}
+		return x;
+	}
+	return alpha;
 }
 /*
 
@@ -480,70 +484,70 @@ bishop could take the queen. Even if White could take the bishop, its not worth 
 queen for rook and bishop.
 
 */
-int ReCaptureSearch(int a,const int sq)
-{				
-int b;
-int c = 0;
-int t = 0;
-int score[12];
-
-memset(score,0,sizeof(score));
-score[0] = piece_value[board[sq]]; 
-score[1] = piece_value[board[a]];
-
-int total_score = 0;
-
-while(c < 10)
+int ReCaptureSearch(int a, const int sq)
 {
-	if(!MakeRecapture(a,sq))
-			break;
-	t++;
-	nodes++;
-	c++;
+	int b;
+	int c = 0;
+	int t = 0;
+	int score[12];
 
-	b = LowestAttacker(side,xside,sq);
-	if(b>63)
-		b = LowestAttacker(side,xside,sq);
+	memset(score, 0, sizeof(score));
+	score[0] = piece_value[board[sq]];
+	score[1] = piece_value[board[a]];
 
-	if(b>-1)
+	int total_score = 0;
+
+	while (c < 10)
 	{
-		score[c + 1] = piece_value[board[b]]; 
-		if(score[c] > score[c - 1] + score[c + 1])
+		if (!MakeRecapture(a, sq))
+			break;
+		t++;
+		nodes++;
+		c++;
+
+		b = LowestAttacker(side, xside, sq);
+		if (b > 63)
+			b = LowestAttacker(side, xside, sq);
+
+		if (b > -1)
 		{
-			c--;
+			score[c + 1] = piece_value[board[b]];
+			if (score[c] > score[c - 1] + score[c + 1])
+			{
+				c--;
+				break;
+			}
+		}
+		else
+		{
 			break;
 		}
+		a = b;
 	}
-	else
+
+	while (c > 1)
 	{
-		break;
+		if (score[c - 1] >= score[c - 2])
+			c -= 2;
+		else
+			break;
 	}
-	a = b;
-}
 
-while(c>1)
-{
-	if(score[c-1] >= score[c-2])
-		c -= 2;
-	else
-		break;
-}
+	for (int x = 0; x < c; x++)
+	{
+		if (x % 2 == 0)
+			total_score += score[x];
+		else
+			total_score -= score[x];
+	}
 
-for(int x=0; x < c; x++)
-{
-if(x%2 == 0)
-	total_score += score[x];
-else
-	total_score -= score[x];
-}
+	while (t)
+	{
+		UnMakeRecapture();
+		t--;
+	}
 
-while(t)
-{
-	UnMakeRecapture();
-	t--;
-}
-
-return total_score;
+	return total_score;
 }
 /*
 
@@ -598,6 +602,13 @@ void CheckUp()
 		stop_search = true;
 		longjmp(env, 0);
 	}
+
+	if (StopForNewGame) // New Game
+	{
+		stop_search = true;
+		StopForNewGame = false;
+		longjmp(env, 0);
+	}
 }
 /*
 
@@ -607,16 +618,14 @@ If it finds it, it sets the move a high score so that it will be played first.
 */
 void SetHashMove()
 {
-
-for(int x=first_move[ply];x < first_move[ply+1];x++)
-{
- if(move_list[x].start == hash_start && move_list[x].dest == hash_dest)
- {
-	move_list[x].score = HASH_SCORE;
-	return;
-  }
-}
-
+	for (int x = first_move[ply]; x < first_move[ply + 1]; x++)
+	{
+		if (move_list[x].start == hash_start && move_list[x].dest == hash_dest)
+		{
+			move_list[x].score = HASH_SCORE;
+			return;
+		}
+	}
 }
 /*
 
