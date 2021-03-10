@@ -446,11 +446,11 @@ void UCI()
                 streamToLog << "\t" << parameter << std::endl;
                 
                 if (hply < 10)
-                    timeDivider = 40;
+                    timeDivider = 40.0f;
                 else if (hply >= 10 && hply < 20)
-                    timeDivider = 30;
+                    timeDivider = 30.0f;
                 else 
-                    timeDivider = 20;
+                    timeDivider = 20.0f;
 
                 int value;
                 std::cin >> value;
@@ -465,7 +465,9 @@ void UCI()
                     fixed_time  = 1;
                     fixed_depth = 0;
                     fixed_nodes = 0;
-                    max_depth = MAX_PLY;
+                    max_depth = MAX_PLY;   
+                    if (max_time < 2500)
+                        max_time =  500;
                 }                
             }                
             else
@@ -498,6 +500,8 @@ void UCI()
                         fixed_depth = 0;
                         fixed_nodes = 0;
                         max_depth = MAX_PLY;
+                        if (max_time < 2500)
+                            max_time =  500;
                     }
                 }
                 
@@ -508,7 +512,9 @@ void UCI()
                     std::cout << " Engine received winc ";
                     if (computer_side == White)
                     { 
-                        max_time += value; // values are given in [ms]; Inkrement wird pro Zug addiert                    
+                        max_time += value; // values are given in [ms]; Inkrement wird pro Zug addiert 
+                        if (max_time < 3000)
+                            max_time =  500;
                         streamToLog << "\tZeit pro Zug für Weiss wurde (incl.Inkrement) auf '"  << max_time << "' ms erhoeht." << std::endl;  
                     }
                 }
@@ -520,7 +526,9 @@ void UCI()
                     std::cout << " Engine received binc ";
                     if (computer_side == Black)
                     {
-                        max_time += value; // values are given in [ms]; Inkrement wird pro Zug addiert                    
+                        max_time += value; // values are given in [ms]; Inkrement wird pro Zug addiert   
+                        if (max_time < 3000)
+                            max_time =  500;
                         streamToLog << "\tZeit für Schwarz pro Zug wurde (incl.Inkrement) auf '" << max_time << "' ms erhoeht." << std::endl;
                     }
                 }
