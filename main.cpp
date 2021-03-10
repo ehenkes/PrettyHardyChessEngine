@@ -82,7 +82,7 @@ const std::string currentDateTime() {
 int main()
 {
     SetBits();
-    std::cout << "Pretty Hardy Chess Engine\n" << ("Version 0.3\n") << std::endl;
+    std::cout << "Pretty Hardy Chess Master\n" << ("Version 0.4\n") << std::endl;
 
     char s[256];
     fixed_time = 0;
@@ -264,7 +264,7 @@ void UCI()
     fixed_time = 0;
     std::stringstream ss;
 
-    ss << "id name PrettyHardyChessmaster Feb 2021\n"
+    ss << "id name PrettyHardyChessmaster v0.4 Mar 2021\n"
        << "id author Erhard Henkes, Paul Puntschart (inspired by code of Bill Jordan)\n"
        << "option name UCI_Chess960 0\n"
        << "option name Threads 1\n"
@@ -445,12 +445,7 @@ void UCI()
             {
                 streamToLog << "\t" << parameter << std::endl;
                 
-                if (hply < 10)
-                    timeDivider = 40.0f;
-                else if (hply >= 10 && hply < 20)
-                    timeDivider = 30.0f;
-                else 
-                    timeDivider = 20.0f;
+                timeDivider = 20.0f; // valid for both sides
 
                 int value;
                 std::cin >> value;
@@ -461,7 +456,7 @@ void UCI()
                 // Erste Idee:
                 if (computer_side == White)
                 {
-                    max_time = (float)value / timeDivider; // values are given in [ms]
+                    max_time = (U64)((float)value / timeDivider); // values are given in [ms]
                     fixed_time  = 1;
                     fixed_depth = 0;
                     fixed_nodes = 0;
@@ -495,7 +490,7 @@ void UCI()
 
                     if (computer_side == Black)
                     {
-                        max_time = (float)value / timeDivider; // values are given in [ms]
+                        max_time = (U64)((float)value / timeDivider); // values are given in [ms]
                         fixed_time  = 1;
                         fixed_depth = 0;
                         fixed_nodes = 0;
@@ -573,7 +568,7 @@ void UCI()
 
         if (!strcmp(command, "quit") || !strcmp(command, "stop"))
         {            
-            gameIsRunning = false;            
+            gameIsRunning = false;              
         }            
     }//while
 
