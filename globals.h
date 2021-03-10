@@ -13,8 +13,6 @@
 void ShowAll(int ply);//
 
 //// Eigene Definitionen
-extern bool StopForNewGame;
-
 #define MAXDEPTH 23 
 #define BISHOPPAIR 25 // Additional score is +0.25 for the bishop's pair
 

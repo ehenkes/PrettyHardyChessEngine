@@ -258,6 +258,7 @@ void UCI()
     int lookup;
     bool gameIsRunning = true;
     bool optionalCommand = false;
+    float timeDivider = 20;
 
     NewGame();
     fixed_time = 0;
@@ -352,7 +353,7 @@ void UCI()
             /// 
             if (!strcmp(parameter, "fen"))
             {
-                InitBoard(); ///// TEST
+                InitBoard(); //Important!!
 
                 std::string fen, input, str2("moves ");
                 getline(std::cin, input);
@@ -390,8 +391,6 @@ void UCI()
 
         if (!strcmp(command, "go"))
         {
-            bool blitztime = false; // Bsp. fuer Blitz: "go wtime 180000 btime 180000 winc 2000 binc 2000"
-            
             computer_side = side;
             std::cin >> parameter;
             if (!strcmp(parameter, "movetime"))
@@ -445,7 +444,13 @@ void UCI()
             else if (!strcmp(parameter, "wtime"))
             {
                 streamToLog << "\t" << parameter << std::endl;
-                blitztime = true;
+                
+                if (hply < 10)
+                    timeDivider = 40;
+                else if (hply >= 10 && hply < 20)
+                    timeDivider = 30;
+                else 
+                    timeDivider = 20;
 
                 int value;
                 std::cin >> value;
@@ -454,9 +459,14 @@ void UCI()
                 //ToDo: Zeit für Weiss setzen
                 // 
                 // Erste Idee:
-                max_time = value / 60; // values are given in [ms]; 60 Zuege angenommen
-                fixed_time = 1;
-                max_depth = MAX_PLY;
+                if (computer_side == White)
+                {
+                    max_time = (float)value / timeDivider; // values are given in [ms]
+                    fixed_time  = 1;
+                    fixed_depth = 0;
+                    fixed_nodes = 0;
+                    max_depth = MAX_PLY;
+                }                
             }                
             else
             {
@@ -480,21 +490,39 @@ void UCI()
                     int value = std::stoi(*(++it));
                     streamToLog << "\tZeit fuer Schwarz wurde auf '" << value << "' ms gesetzt." << std::endl;
                     std::cout << " Engine received btime ";
+
+                    if (computer_side == Black)
+                    {
+                        max_time = (float)value / timeDivider; // values are given in [ms]
+                        fixed_time  = 1;
+                        fixed_depth = 0;
+                        fixed_nodes = 0;
+                        max_depth = MAX_PLY;
+                    }
                 }
                 
                 if (!strcmp(it->c_str(), "winc"))
                 {
                     int value = std::stoi(*(++it));
-                    streamToLog << "\tInkrement pro Zug wurde auf '" << value << "' ms gesetzt." << std::endl;
+                    streamToLog << "\tInkrement pro Zug für Weiss wurde auf '" << value << "' ms gesetzt." << std::endl;
                     std::cout << " Engine received winc ";
-                    max_time += value; // values are given in [ms]; Inkrement wird pro Zug addiert                    
-                    streamToLog << "\tZeit pro Zug wurde (incl.Inkrement) auf '"  << max_time << "' ms erhoeht." << std::endl;                                        
+                    if (computer_side == White)
+                    { 
+                        max_time += value; // values are given in [ms]; Inkrement wird pro Zug addiert                    
+                        streamToLog << "\tZeit pro Zug für Weiss wurde (incl.Inkrement) auf '"  << max_time << "' ms erhoeht." << std::endl;  
+                    }
                 }
                 
                 if (!strcmp(it->c_str(), "binc"))
                 {
+                    int value = std::stoi(*(++it));
+                    streamToLog << "\tInkrement pro Zug wurde auf '" << value << "' ms gesetzt." << std::endl;
                     std::cout << " Engine received binc ";
-                    //ToDo: clarify value handling
+                    if (computer_side == Black)
+                    {
+                        max_time += value; // values are given in [ms]; Inkrement wird pro Zug addiert                    
+                        streamToLog << "\tZeit für Schwarz pro Zug wurde (incl.Inkrement) auf '" << max_time << "' ms erhoeht." << std::endl;
+                    }
                 }
             }
             streamToLog << std::endl;
@@ -889,8 +917,7 @@ void SetUp()
 void NewGame()
 {
     InitBoard();
-    Gen(side, xside);
-    StopForNewGame = true;
+    Gen(side, xside);    
 }
 
 void SetMaterial()

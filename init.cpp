@@ -129,12 +129,12 @@ int pawn_score[64] =
 };
 */
 
-// idea: support fianchetto
+// idea: support fianchetto at king side 
 int pawn_score[64] =
 {
 	  0,   0,   0,   0,   0,   0,   0,   0,
 	  0,   2,   4, -12, -12,   4,   2,   0,
-	  0,  20,   4,   4,   4,   4,  20,   0,
+	  0,   2,   4,   4,   4,   4,  20,   0,
 	  0,   2,   4,   8,   8,   4,   2,   0,
 	  0,   2,   4,   8,   8,   4,   2,   0,
 	  4,   8,  10,  16,  16,  10,   8,   4,
@@ -182,11 +182,11 @@ int bishop_score[64] =
 };
 */
 
-// idea: support fianchetto
+// idea: support fianchetto at king side
 int bishop_score[64] = 
 {
 	-10, -10, -12, -10, -10, -12, -10, -10,
-	  0,  20,   4,   4,   4,   4,  20,   0,
+	  0,   4,   4,   4,   4,   4,  20,   0,
 	  2,   4,   6,   6,   6,   6,   4,   2,
 	  2,   4,   6,   8,   8,   6,   4,   2,
 	  2,   4,   6,   8,   8,   6,   4,   2,

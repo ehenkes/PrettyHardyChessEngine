@@ -7,7 +7,6 @@
 #define DEBUG // zur Ausgabe in ein Logfile
 
 jmp_buf env;
-bool StopForNewGame;
 bool stop_search;
 int currentmax;
 int move_start, move_dest;
@@ -600,13 +599,6 @@ void CheckUp()
 	if( (GetTime() >= stop_time || (max_time<50 && ply>1)) && fixed_depth==0 && ply>1)
 	{
 		stop_search = true;
-		longjmp(env, 0);
-	}
-
-	if (StopForNewGame) // New Game
-	{
-		stop_search = true;
-		StopForNewGame = false;
 		longjmp(env, 0);
 	}
 }
