@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "globals.h"
 
 int ReverseSquare[2] = {-8,8};

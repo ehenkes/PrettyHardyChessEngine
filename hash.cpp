@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "globals.h"
 
 U64 hash[2][6][64];

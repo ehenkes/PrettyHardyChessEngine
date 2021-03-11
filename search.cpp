@@ -1,7 +1,4 @@
-#include <setjmp.h>
-#include <iostream>
-#include <iomanip> 
-#include <fstream>
+#include "stdafx.h"
 #include "globals.h"
 
 #define DEBUG // zur Ausgabe in ein Logfile

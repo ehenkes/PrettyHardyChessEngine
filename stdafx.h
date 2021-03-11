@@ -6,12 +6,24 @@
 #pragma once
 
 #include "targetver.h"
-
+#include <setjmp.h>
+#include <signal.h>
+#include <memory.h>
+#include <conio.h>
+#include <sys/timeb.h>
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
 #include <cstdio>
-//#include <tchar.h>
+#include <ctime>
+#include <string>
+#include <fstream>
+#include <bitset>
+#include <list>
+#include <sstream> 
+#include <windows.h>
+#include <iostream>
+#include <iomanip>
+#include <ctime>
 
 
-
-
-
-// TODO: reference additional headers your program requires here

@@ -1,7 +1,6 @@
-#include <cstdlib>
-#include <bit>
-#include <bitset>
+#include "stdafx.h"
 #include "globals.h"
+
 
 const BITBOARD debruijn64 = 0x07EDD5E59A4E28C2;
 

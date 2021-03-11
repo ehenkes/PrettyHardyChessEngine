@@ -1,13 +1,4 @@
-#include <memory.h>
-#include <conio.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <dos.h>
-#include <time.h>
-#include <string>
-#include <fstream>
+
 #include "stdafx.h"
 
 void ShowAll(int ply);//

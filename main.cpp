@@ -1,18 +1,6 @@
 ﻿#include "stdafx.h"
-#include <signal.h>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <string>
-#include <sstream> 
-#include <windows.h>
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <sys/timeb.h>
-#include <ctime>
 #include "globals.h"
-#include <list>
+
 
 void ShowHelp();
 void SetUp();

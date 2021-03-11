@@ -1,6 +1,5 @@
+#include "stdafx.h"
 #include "globals.h"
-#include <ctime>
-#include <fstream>
 
 const int ISOLATED = 20;
 
