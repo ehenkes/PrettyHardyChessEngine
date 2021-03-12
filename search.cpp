@@ -593,7 +593,7 @@ If so, the search ends.
 */
 void CheckUp()
 {
-	if( (GetTime() >= stop_time || (max_time<50 && ply>1)) && fixed_depth==0 && ply>1)
+	if( ((gameIsRunning == false) || (GetTime() >= stop_time) || ((max_time<50 && ply>1)) && fixed_depth==0 && ply>1))
 	{
 		stop_search = true;
 		longjmp(env, 0);

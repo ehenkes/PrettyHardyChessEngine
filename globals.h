@@ -121,6 +121,9 @@ void ShowAll(int ply);//
 extern const U64 MAXHASH; 
 extern const U64 HASHSIZE;
 
+extern bool gameIsRunning;
+extern int move_start, move_dest;
+
 typedef struct {
 	int start;
 	int dest;

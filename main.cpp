@@ -56,7 +56,7 @@ void NewGame();
 void SetMaterial();
 void SetBits();
 
-extern int move_start, move_dest;
+bool gameIsRunning;
 
 const std::string currentDateTime() {
     time_t     now = time(0);
@@ -69,6 +69,7 @@ const std::string currentDateTime() {
 
 int main()
 {
+    gameIsRunning = true;
     SetBits();
     std::cout << "Pretty Hardy Chess Master\n" << ("Version 0.4\n") << std::endl;
 
@@ -243,8 +244,7 @@ void UCI()
     int m;
     int post = 0;
     int analyze = 0;
-    int lookup;
-    bool gameIsRunning = true;
+    int lookup;    
     bool optionalCommand = false;
     float timeDivider = 20;
 
@@ -556,7 +556,8 @@ void UCI()
 
         if (!strcmp(command, "quit") || !strcmp(command, "stop"))
         {            
-            gameIsRunning = false;              
+            gameIsRunning = false; 
+            break;
         }            
     }//while
 
