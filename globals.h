@@ -118,7 +118,7 @@ void ShowAll(int ply);//
 #define HASH_SCORE    100000000
 #define CAPTURE_SCORE 10000000
 
-enum FIXEDLEVEL { FIXED_DEPTH, FIXED_TIME, FIXED_NODES };
+enum class FIXEDLEVEL { DEPTH, TIME, NODES };
 extern FIXEDLEVEL fixedLevel;
 
 extern const U64 MAXHASH; 

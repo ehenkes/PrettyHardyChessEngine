@@ -130,7 +130,7 @@ void think()
 
 	// If a fixed time for each move has not been set, 
 	// then the allotted time is halved for moves that are check evasions or likely recaptures.
-	if (fixedLevel != FIXED_TIME)
+	if (fixedLevel != FIXEDLEVEL::TIME)
 	{
 		if (Attack(xside, NextBit(bit_pieces[side][K])))
 			//max_time /= 2;
@@ -151,9 +151,9 @@ void think()
 	{
 		// It iterates until the maximum depth for the move is reached or until the allotted time has run out. 
 		currentmax = i;
-		if (fixedLevel != FIXED_DEPTH && max_depth > 1)
+		if (fixedLevel != FIXEDLEVEL::DEPTH && max_depth > 1)
 		{
-			if (fixedLevel == FIXED_NODES)
+			if (fixedLevel == FIXEDLEVEL::NODES)
 			{
 				if (nodes > max_nodes)
 				{
@@ -161,7 +161,7 @@ void think()
 					return;
 				}
 			}
-			else if (fixedLevel == FIXED_TIME)
+			else if (fixedLevel == FIXEDLEVEL::TIME)
 			{
 				if (GetTime() >= start_time + max_time)
 				{
@@ -592,7 +592,7 @@ If so, the search ends.
 */
 void CheckUp()
 {
-	if( (gameIsRunning == false) || (GetTime() >= stop_time) || ((max_time<50 && ply>1) && ((fixedLevel != FIXED_DEPTH) && ply>1)) )
+	if( (gameIsRunning == false) || (GetTime() >= stop_time) || ((max_time<50 && ply>1) && ((fixedLevel != FIXEDLEVEL::DEPTH) && ply>1)) )
 	{
 		stop_search = true;
 		longjmp(env, 0);

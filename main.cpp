@@ -386,7 +386,7 @@ void UCI()
                     << "Movetime wurde auf '" << value << "' ms gesetzt." << std::endl;
                 std::cout << " Engine received movetime ";
                 max_time = value; // values are given in [ms]
-                fixedLevel = FIXED_TIME;
+                fixedLevel = FIXEDLEVEL::TIME;
                 max_depth = MAX_PLY;
             }
             else if (!strcmp(parameter, "depth"))
@@ -397,7 +397,7 @@ void UCI()
                     << "Depth wurde auf '" << value << "' Halbzuege gesetzt." << std::endl;
                 std::cout << " Engine received depth ";
                 max_depth = value; // values are given in plies (Halbzuege)
-                fixedLevel = FIXED_DEPTH;
+                fixedLevel = FIXEDLEVEL::DEPTH;
             }
             else if (!strcmp(parameter, "nodes"))
             {
@@ -407,7 +407,7 @@ void UCI()
                     << "Nodes wurde auf '" << value << "' gesetzt." << std::endl;
                 std::cout << " Engine received nodes ";
                 max_depth = MAX_PLY; // Halbzuege
-                fixedLevel = FIXED_NODES;
+                fixedLevel = FIXEDLEVEL::NODES;
                 max_nodes = value;
             }
             else if (!strcmp(parameter, "infinite"))
@@ -416,7 +416,7 @@ void UCI()
                     << "Depth und Movetime wurde auf 'infinite' gesetzt." << std::endl;
                 std::cout << " Engine received infinite. We use MAXDEPTH.";
                 max_depth = MAXDEPTH; // values are given in plies (Halbzuege)
-                fixedLevel = FIXED_DEPTH;
+                fixedLevel = FIXEDLEVEL::DEPTH;
             }                
             else if (!strcmp(parameter, "wtime"))
             {
@@ -434,7 +434,7 @@ void UCI()
                 if (computer_side == White)
                 {
                     max_time = (U64)((float)value / timeDivider); // values are given in [ms]
-                    fixedLevel = FIXED_TIME;
+                    fixedLevel = FIXEDLEVEL::TIME;
                     max_depth = MAX_PLY;   
                     if (max_time < 2500)
                         max_time =  500;
@@ -466,7 +466,7 @@ void UCI()
                     if (computer_side == Black)
                     {
                         max_time = (U64)((float)value / timeDivider); // values are given in [ms]
-                        fixedLevel = FIXED_TIME;
+                        fixedLevel = FIXEDLEVEL::TIME;
                         max_depth = MAX_PLY;
                         if (max_time < 2500)
                             max_time =  500;
