@@ -8,7 +8,6 @@ bool stop_search;
 int currentmax;
 int move_start, move_dest;
 int LowestAttacker(const int s, const int xs,const int sq);
-
 void SetHashMove();
 void DisplayPV(int i);
 
@@ -131,7 +130,7 @@ void think()
 
 	// If a fixed time for each move has not been set, 
 	// then the allotted time is halved for moves that are check evasions or likely recaptures.
-	if (fixed_time == 0)
+	if (fixedLevel != FIXED_TIME)
 	{
 		if (Attack(xside, NextBit(bit_pieces[side][K])))
 			//max_time /= 2;
@@ -152,9 +151,9 @@ void think()
 	{
 		// It iterates until the maximum depth for the move is reached or until the allotted time has run out. 
 		currentmax = i;
-		if (fixed_depth == 0 && max_depth > 1)
+		if (fixedLevel != FIXED_DEPTH && max_depth > 1)
 		{
-			if (fixed_nodes == 1)
+			if (fixedLevel == FIXED_NODES)
 			{
 				if (nodes > max_nodes)
 				{
@@ -162,7 +161,7 @@ void think()
 					return;
 				}
 			}
-			else if (fixed_time == 1)
+			else if (fixedLevel == FIXED_TIME)
 			{
 				if (GetTime() >= start_time + max_time)
 				{
@@ -358,7 +357,7 @@ int Search(int alpha, int beta, int depth)
 					// legaler Zug
 					countLegalMoves++;
 					streamToLogSearch << "legal(" << std::setw(2) << i + 1 << "): " << "\t"
-						<< MoveString(move_list[i].start, move_list[i].dest, move_list[i].promote)
+						<< MoveString(move_list[i].start, move_list[i].dest, move_list[i].promote) << " " << move_list[i].score
 						<< std::endl;
 					
 					int retVal = TakeBack(); 
@@ -593,7 +592,7 @@ If so, the search ends.
 */
 void CheckUp()
 {
-	if( ((gameIsRunning == false) || (GetTime() >= stop_time) || ((max_time<50 && ply>1)) && fixed_depth==0 && ply>1))
+	if( (gameIsRunning == false) || (GetTime() >= stop_time) || ((max_time<50 && ply>1) && ((fixedLevel != FIXED_DEPTH) && ply>1)) )
 	{
 		stop_search = true;
 		longjmp(env, 0);

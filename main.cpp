@@ -41,9 +41,8 @@ int flip = 0;
 int computer_side;
 int player[2];
 
-int fixed_time;
-int fixed_depth;
-int fixed_nodes;
+FIXEDLEVEL fixedLevel;
+
 U64 max_time;
 U64 start_time;
 U64 stop_time;
@@ -74,8 +73,7 @@ int main()
     std::cout << "Pretty Hardy Chess Master\n" << ("Version 0.4\n") << std::endl;
 
     char s[256];
-    fixed_time = 0;
-
+    
     SetUp(); // setzt z.B. maximale Halbzugtiefe
 
     while (true)
@@ -249,7 +247,6 @@ void UCI()
     float timeDivider = 20;
 
     NewGame();
-    fixed_time = 0;
     std::stringstream ss;
 
     ss << "id name PrettyHardyChessmaster v0.4 Mar 2021\n"
@@ -389,9 +386,7 @@ void UCI()
                     << "Movetime wurde auf '" << value << "' ms gesetzt." << std::endl;
                 std::cout << " Engine received movetime ";
                 max_time = value; // values are given in [ms]
-                fixed_time  = 1;
-                fixed_nodes = 0;
-                fixed_depth = 0;
+                fixedLevel = FIXED_TIME;
                 max_depth = MAX_PLY;
             }
             else if (!strcmp(parameter, "depth"))
@@ -402,9 +397,7 @@ void UCI()
                     << "Depth wurde auf '" << value << "' Halbzuege gesetzt." << std::endl;
                 std::cout << " Engine received depth ";
                 max_depth = value; // values are given in plies (Halbzuege)
-                fixed_depth = 1;
-                fixed_time  = 0;
-                fixed_nodes = 0;
+                fixedLevel = FIXED_DEPTH;
             }
             else if (!strcmp(parameter, "nodes"))
             {
@@ -414,9 +407,7 @@ void UCI()
                     << "Nodes wurde auf '" << value << "' gesetzt." << std::endl;
                 std::cout << " Engine received nodes ";
                 max_depth = MAX_PLY; // Halbzuege
-                fixed_nodes = 1;
-                fixed_depth = 0;                
-                fixed_time  = 0;
+                fixedLevel = FIXED_NODES;
                 max_nodes = value;
             }
             else if (!strcmp(parameter, "infinite"))
@@ -425,9 +416,7 @@ void UCI()
                     << "Depth und Movetime wurde auf 'infinite' gesetzt." << std::endl;
                 std::cout << " Engine received infinite. We use MAXDEPTH.";
                 max_depth = MAXDEPTH; // values are given in plies (Halbzuege)
-                fixed_depth = 1;
-                fixed_nodes = 0;
-                fixed_time = 0;
+                fixedLevel = FIXED_DEPTH;
             }                
             else if (!strcmp(parameter, "wtime"))
             {
@@ -445,9 +434,7 @@ void UCI()
                 if (computer_side == White)
                 {
                     max_time = (U64)((float)value / timeDivider); // values are given in [ms]
-                    fixed_time  = 1;
-                    fixed_depth = 0;
-                    fixed_nodes = 0;
+                    fixedLevel = FIXED_TIME;
                     max_depth = MAX_PLY;   
                     if (max_time < 2500)
                         max_time =  500;
@@ -479,9 +466,7 @@ void UCI()
                     if (computer_side == Black)
                     {
                         max_time = (U64)((float)value / timeDivider); // values are given in [ms]
-                        fixed_time  = 1;
-                        fixed_depth = 0;
-                        fixed_nodes = 0;
+                        fixedLevel = FIXED_TIME;
                         max_depth = MAX_PLY;
                         if (max_time < 2500)
                             max_time =  500;

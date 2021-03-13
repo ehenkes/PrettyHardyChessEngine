@@ -118,6 +118,9 @@ void ShowAll(int ply);//
 #define HASH_SCORE    100000000
 #define CAPTURE_SCORE 10000000
 
+enum FIXEDLEVEL { FIXED_DEPTH, FIXED_TIME, FIXED_NODES };
+extern FIXEDLEVEL fixedLevel;
+
 extern const U64 MAXHASH; 
 extern const U64 HASHSIZE;
 
@@ -179,9 +182,6 @@ extern game game_list[GAME_STACK];
 extern int hash_start,hash_dest;
 extern U64 currentkey,currentlock;
 
-extern int fixed_time;
-extern int fixed_depth;
-extern int fixed_nodes;
 extern U64 max_time;
 extern U64 start_time;
 extern U64 stop_time;
