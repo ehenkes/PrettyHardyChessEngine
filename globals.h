@@ -1,122 +1,118 @@
 
 #include "stdafx.h"
 
-void ShowAll(int ply);//
-
-//// Eigene Definitionen
-#define MAXDEPTH 16 
-#define BISHOPPAIR 25 // Additional score is +0.25 for the bishop's pair
-
-// http://www.billwallchess.com/articles/Value.htm
-#define PAWN_VALUE 100
-#define KNIGHT_VALUE 325
-#define BISHOP_VALUE 350
-#define ROOK_VALUE 500
-#define QUEEN_VALUE 975
-#define KING_VALUE 10000
-//// Eigene Definitionen
-
 #define U64 unsigned __int64 
 #define BITBOARD unsigned __int64 
 
-#define A1	0
-#define B1	1
-#define C1	2
-#define D1	3
-#define E1	4
-#define F1  5
-#define G1	6
-#define H1	7
+const int MAXDEPTH   = 16;
+const int BISHOPPAIR = 25; // Additional score is +0.25 for the bishop's pair
 
-#define A2	8
-#define B2	9
-#define C2	10
-#define D2	11
-#define E2	12
-#define F2	13
-#define G2	14
-#define H2	15
+// http://www.billwallchess.com/articles/Value.htm
+const int PAWN_VALUE   =   100;
+const int KNIGHT_VALUE =   325;
+const int BISHOP_VALUE =   350;
+const int ROOK_VALUE   =   500;
+const int QUEEN_VALUE  =   975;
+const int KING_VALUE   = 10000;
 
-#define A3	16
-#define B3	17
-#define C3	18
-#define D3	19
-#define E3	20
-#define F3	21
-#define G3	22
-#define H3	23
+const int A1 =  0;
+const int B1 =  1;
+const int C1 =  2;
+const int D1 =  3;
+const int E1 =  4;
+const int F1 =  5;
+const int G1 =  6;
+const int H1 =  7;
 
-#define A4	24
-#define B4	25
-#define C4	26
-#define D4	27
-#define E4	28
-#define F4	29
-#define G4	30
-#define H4	31
+const int A2 =  8;
+const int B2 =  9;
+const int C2 = 10;
+const int D2 = 11;
+const int E2 = 12;
+const int F2 = 13;
+const int G2 = 14;
+const int H2 = 15;
 
-#define A5	32
-#define B5	33
-#define C5	34
-#define D5	35
-#define E5	36
-#define F5	37
-#define G5	38
-#define H5	39
+const int A3 = 16;
+const int B3 = 17;
+const int C3 = 18;
+const int D3 = 19;
+const int E3 = 20;
+const int F3 = 21;
+const int G3 = 22;
+const int H3 = 23;
 
-#define A6	40
-#define B6	41
-#define C6	42
-#define D6	43
-#define E6	44
-#define F6	45
-#define G6	46
-#define H6	47
+const int A4 = 24;
+const int B4 = 25;
+const int C4 = 26;
+const int D4 = 27;
+const int E4 = 28;
+const int F4 = 29;
+const int G4 = 30;
+const int H4 = 31;
 
-#define A7	48
-#define B7	49
-#define C7	50
-#define D7	51
-#define E7	52
-#define F7	53
-#define G7	54
-#define H7	55
+const int A5 = 32;
+const int B5 = 33;
+const int C5 = 34;
+const int D5 = 35;
+const int E5 = 36;
+const int F5 = 37;
+const int G5 = 38;
+const int H5 = 39;
 
-#define A8	56
-#define B8	57
-#define C8	58
-#define D8	59
-#define E8	60
-#define F8	61
-#define G8	62
-#define H8	63
+const int A6 = 40;
+const int B6 = 41;
+const int C6 = 42;
+const int D6 = 43;
+const int E6 = 44;
+const int F6 = 45;
+const int G6 = 46;
+const int H6 = 47;
 
-#define NORTH 0
-#define NE 1
-#define EAST 2
-#define SE 3
-#define SOUTH 4
-#define SW 5
-#define WEST 6
-#define NW 7
+const int A7 = 48;
+const int B7 = 49;
+const int C7 = 50;
+const int D7 = 51;
+const int E7 = 52;
+const int F7 = 53;
+const int G7 = 54;
+const int H7 = 55;
 
-#define P 0
-#define N 1
-#define B 2
-#define R 3
-#define Q 4
-#define K 5
-#define EMPTY 6
+const int A8 = 56;
+const int B8 = 57;
+const int C8 = 58;
+const int D8 = 59;
+const int E8 = 60;
+const int F8 = 61;
+const int G8 = 62;
+const int H8 = 63;
 
-#define White 0
-#define Black 1
+const int NORTH = 0;
+const int NE    = 1;
+const int EAST  = 2;
+const int SE    = 3;
+const int SOUTH = 4;
+const int SW    = 5;
+const int WEST  = 6;
+const int NW    = 7;
 
-#define MAX_PLY 64
-#define MOVE_STACK 40000 // erhoeht um Faktor 10
-#define GAME_STACK 20000 // erhoeht um Faktor 10
+const int P     = 0;
+const int N     = 1;
+const int B     = 2;
+const int R     = 3;
+const int Q     = 4;
+const int K     = 5;
+const int EMPTY = 6;
 
-#define HASH_SCORE    100000000
-#define CAPTURE_SCORE 10000000
+const int White = 0;
+const int Black = 1;
+
+const int MAX_PLY = 64;
+const int MOVE_STACK = 40000; // erhoeht um Faktor 10
+const int GAME_STACK = 20000; // erhoeht um Faktor 10
+
+const int HASH_SCORE = 100000000;
+const int CAPTURE_SCORE = 10000000;
 
 enum class FIXEDLEVEL { DEPTH, TIME, NODES };
 extern FIXEDLEVEL fixedLevel;
