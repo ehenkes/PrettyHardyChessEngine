@@ -121,7 +121,7 @@ extern const U64 MAXHASH;
 extern const U64 HASHSIZE;
 
 extern bool gameIsRunning;
-extern int move_start, move_dest;
+extern int move_start, move_dest, move_promote;
 
 typedef struct {
 	int start;

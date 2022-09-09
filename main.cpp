@@ -70,7 +70,7 @@ int main()
 {
     gameIsRunning = true;
     SetBits();
-    std::cout << "Pretty Hardy Chess Master\n" << ("Version 0.4\n") << std::endl;
+    std::cout << "Pretty Hardy Chess Master\n" << ("Version 0.5\n") << std::endl;
 
     char s[256];
     
@@ -208,11 +208,13 @@ int ParseMove(char* s)
         if (move_list[i].start == start && move_list[i].dest == dest)
         {
             if (s[4] == 'n' || s[4] == 'N')
-                move_list[i].promote = 1;
+                move_list[i].promote = N;
             if (s[4] == 'b' || s[4] == 'B')
-                move_list[i].promote = 2;
-            else if (s[4] == 'r' || s[4] == 'R')
-                move_list[i].promote = 3;
+                move_list[i].promote = B;
+            if (s[4] == 'r' || s[4] == 'R')
+                move_list[i].promote = R;
+            if (s[4] == 'q' || s[4] == 'Q')
+                move_list[i].promote = Q;
             return i;
         }
     return -1;
@@ -249,7 +251,7 @@ void UCI()
     NewGame();
     std::stringstream ss;
 
-    ss << "id name PrettyHardyChessmaster v0.4 Mar 2021\n"
+    ss << "id name PrettyHardyChessmaster v0.5 May 2022\n"
        << "id author Erhard Henkes, Paul Puntschart (inspired by code of Bill Jordan)\n"
        << "option name UCI_Chess960 0\n"
        << "option name Threads 1\n"
@@ -262,6 +264,9 @@ void UCI()
     streamToLog.open("log.txt", std::ios::out);
     streamToLog << currentDateTime() << ": ENGINE:\n" << ss.str() << std::endl;
     ss.str("");
+
+    std::fstream streamToTest;
+    streamToTest.open("bestmove_in_main.txt", std::ios::out);
     
     while (gameIsRunning)
     {        
@@ -516,17 +521,24 @@ void UCI()
             if (move_start != 0 || move_dest != 0)
             {
                 hash_start = move_start;
-                hash_dest = move_dest;
+                hash_dest = move_dest;                     
             }
             else
                 std::cout << " lookup=0 ";
 
             move_list[0].start = hash_start;
             move_list[0].dest = hash_dest;
-            std::cout << "bestmove " << MoveString(hash_start, hash_dest, 0) << "\n";
-
+            
+            if (board[hash_start] == P && (row[hash_dest] == 0 || row[hash_dest] == 7))
+            {
+                move_promote = Q;
+            }
+            
+            std::cout << "bestmove " << MoveString(hash_start, hash_dest, move_promote) << "\n"; // promote eingefügt anstelle immer 0 ////TEST////
+            streamToTest << "bestmove " << MoveString(hash_start, hash_dest, move_promote) << "\n"; ////TEST////
             MakeMove(hash_start, hash_dest);
-
+            
+            
             ply = 0;
             Gen(side, xside);
             PrintResult();
@@ -576,7 +588,7 @@ void ProcessMoves(char line[2048], int& m, std::fstream& streamToLog, bool fen)
     }
 }
 
-void ProcessMove(int& m, char  line[2048], int last_space, std::fstream& streamToLog)
+void ProcessMove(int& m, char line[2048], int last_space, std::fstream& streamToLog)
 {
     ply = 0;
     first_move[0] = 0;
@@ -587,16 +599,21 @@ void ProcessMove(int& m, char  line[2048], int last_space, std::fstream& streamT
     {
         MoveString(move_list[m].start, move_list[m].dest, move_list[m].promote);
     }
-    if (game_list[hply - 1].promote > 0 && (row[move_list[m].dest] == 0 || row[move_list[m].dest] == 7))
+    
+    //if (game_list[hply - 1].promote > 0 && (row[move_list[m].dest] == 0 || row[move_list[m].dest] == 7))
+    if ((move_list[m].promote > 0) && (row[move_list[m].dest] == 0 || row[move_list[m].dest] == 7))
     {
         RemovePiece(xside, Q, move_list[m].dest);
         if (line[4] == 'n' || line[4] == 'N')
             AddPiece(xside, N, move_list[m].dest);
-        else if (line[4] == 'b' || line[4] == 'B')
-            AddPiece(xside, B, move_list[m].dest);
-        else if (line[4] == 'r' || line[4] == 'R')
-            AddPiece(xside, R, move_list[m].dest);
-        else AddPiece(xside, Q, move_list[m].dest);
+        else 
+            if (line[4] == 'b' || line[4] == 'B')
+                AddPiece(xside, B, move_list[m].dest);
+            else 
+                if (line[4] == 'r' || line[4] == 'R')
+                    AddPiece(xside, R, move_list[m].dest);
+                else 
+                    AddPiece(xside, Q, move_list[m].dest);
     }
 }
 
@@ -930,11 +947,12 @@ U64 GetTime() // integer als return value erscheint unpassend!?
 char* MoveString(int start, int dest, int promote)
 {
     static char str[6];
-
     char c;
 
-    if (promote > 0) {
-        switch (promote) {
+    if (promote > 0) 
+    {
+        switch (promote) 
+        {
         case N:
             c = 'n';
             break;
@@ -943,6 +961,9 @@ char* MoveString(int start, int dest, int promote)
             break;
         case R:
             c = 'r';
+            break;
+        case Q:
+            c = 'q';
             break;
         default:
             c = 'q';
@@ -956,10 +977,12 @@ char* MoveString(int start, int dest, int promote)
             c);
     }
     else
+    {
         sprintf_s(str, "%c%d%c%d",
             col[start] + 'a',
             row[start] + 1,
             col[dest] + 'a',
             row[dest] + 1);
+    }
     return str;
 }

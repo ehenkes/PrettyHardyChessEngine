@@ -6,7 +6,7 @@
 jmp_buf env;
 bool stop_search;
 int currentmax;
-int move_start, move_dest;
+int move_start, move_dest, move_promote;
 int LowestAttacker(const int s, const int xs,const int sq);
 void SetHashMove();
 void DisplayPV(int i);
@@ -283,6 +283,7 @@ int Search(int alpha, int beta, int depth)
 		{
 			bestscore = x;
 			bestmove = move_list[i];
+			move_promote = bestmove.promote; //TEST
 		}
 
 		if (x > alpha) // if it is greater than alpha, alpha is changed.

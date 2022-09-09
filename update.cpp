@@ -4,6 +4,7 @@
 int ReverseSquare[2] = {-8,8};
 
 game* g;
+
 /*
 
 UpdatePiece updates the Hash Table key, the board and the table_score (the incremental
@@ -12,15 +13,15 @@ evaluation) whenever a piece moves.
 */
 void UpdatePiece(const int s,const int p,const int start,const int dest)
 {
-bit_units[s] &= not_mask[start];
-bit_units[s] |= mask[dest];
-bit_all = bit_units[0] | bit_units[1];
-AddKey(s,p,start);
-AddKey(s,p,dest);
-board[dest] = p;
-board[start] = EMPTY;
-bit_pieces[s][p] &= not_mask[start];
-bit_pieces[s][p] |= mask[dest];	
+	bit_units[s] &= not_mask[start];
+	bit_units[s] |= mask[dest];
+	bit_all = bit_units[0] | bit_units[1];
+	AddKey(s,p,start);
+	AddKey(s,p,dest);
+	board[dest] = p;
+	board[start] = EMPTY;
+	bit_pieces[s][p] &= not_mask[start];
+	bit_pieces[s][p] |= mask[dest];	
 }
 /*
 
@@ -30,11 +31,11 @@ evaluation) whenever a piece is removed.
 */
 void RemovePiece(const int s,const int p,const int sq)
 {
-AddKey(s,p,sq);
-board[sq] = EMPTY;
-bit_units[s] &= not_mask[sq];
-bit_pieces[s][p] &= not_mask[sq];
-bit_all = bit_units[0] | bit_units[1];
+	AddKey(s,p,sq);
+	board[sq] = EMPTY;
+	bit_units[s] &= not_mask[sq];
+	bit_pieces[s][p] &= not_mask[sq];
+	bit_all = bit_units[0] | bit_units[1];
 }
 /*
 
@@ -44,11 +45,11 @@ evaluation) whenever a piece is added.
 */
 void AddPiece(const int s,const int p,const int sq)
 {
-board[sq] = p;
-AddKey(s,p,sq);
-bit_units[s] |= mask[sq];
-bit_pieces[s][p] |= mask[sq];
-bit_all = bit_units[0] | bit_units[1];
+	board[sq] = p;
+	AddKey(s,p,sq);
+	bit_units[s] |= mask[sq];
+	bit_pieces[s][p] |= mask[sq];
+	bit_all = bit_units[0] | bit_units[1];
 }
 
 /*
@@ -127,14 +128,14 @@ int MakeMove(const int start, const int dest)
 	{
 		RemovePiece(side, P, start);
 		AddPiece(side, Q, dest);
-		g->promote = Q;
+		g->promote = Q;	
 	}
 	else
 	{
 		g->promote = 0;
-		UpdatePiece(side, board[start], start, dest);
+		UpdatePiece(side, board[start], start, dest);		
 	}
-
+		
 	// If the move leaves the King in check (for example, if a pinned piece moved), 
 	// then the move is taken back.
 	side ^= 1;
