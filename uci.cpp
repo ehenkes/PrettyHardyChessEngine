@@ -104,7 +104,7 @@ namespace {
         
     myChessboard.open("chessboard.txt"); // overwrite
     myChessboard << pos << "\n\n";
-    myfile.open("output.txt", std::ios_base::app); // append instead of overwrite
+    myfile.open("output.txt", std::ios_base::app); // append instead of overwrite*/
     myfile << "Spielzug:                        " << token << "\n";
     myfile.precision(3);
     myfile << "Phase of the Game (128 ...0):  " << phaseOfTheGame << "\n";
