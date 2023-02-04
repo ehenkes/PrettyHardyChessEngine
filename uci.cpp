@@ -49,7 +49,6 @@ using namespace std;
 ofstream myfile; //Ausgabe-File für Werte
 ofstream myChessboard; //Ausgabe-File für ASCII Chessboard
 
-
 namespace Stockfish {
 
 extern vector<string> setup_bench(const Position&, istream&);
@@ -94,8 +93,13 @@ namespace {
     }
 
 #if defined _MyCode_
+#if defined _NoAdditionalConsole_
+    //do nothing
+#else
     cerr.precision(3);
     sync_cerr << token << "\n" << Eval::trace(pos) << "\n" << sync_endl; // own output
+#endif
+
     int phaseOfTheGame = (Material::probe(pos))->game_phase();
     
     //Material
@@ -124,11 +128,11 @@ namespace {
     if (Eval::useNNUE)
     {
         nnue_v = Eval::NNUE::evaluate(pos, false);
-        nnue_v = pos.side_to_move() == WHITE ? nnue_v : -nnue_v;
+        //nnue_v = pos.side_to_move() == WHITE ? nnue_v : -nnue_v;
     }
 
     Value v = Eval::evaluate(pos);
-    v = pos.side_to_move() == WHITE ? v : -v;
+    //v = pos.side_to_move() == WHITE ? v : -v;
 
     myfile << "King Safety White: " << Trace::to_cp(KingSafetyWhite) << "\n";
     myfile << "King Safety Black: " << Trace::to_cp(KingSafetyBlack) << "\n";
@@ -140,9 +144,18 @@ namespace {
     myfile << "Threats Black:     " << Trace::to_cp(ThreatsBlack)    << "\n";
     //myfile << "PSQ Score:         " << Trace::to_cp(PSQ_Score)       << "\n";
     myfile << "NNUE evaluation:   " << Trace::to_cp(nnue_v)          << "\n";
-    myfile << "Final evaluation:  " << Trace::to_cp(v)               << "\n\n";
+    myfile << "Final evaluation:  " << Trace::to_cp(v)               << "\n";
+    myfile << "Next Ply:          " << pos.game_ply() + 1            << "\n";
+    if (pos.side_to_move() == WHITE)
+    {
+        myfile << "NextToMove:        " << "white" << "\n\n";
+    }
+    else
+    {
+        myfile << "NextToMove:        " << "black" << "\n\n";
+    }    
     myfile.close();
-    myChessboard.close();
+    myChessboard.close();       
 #endif
 
   }
